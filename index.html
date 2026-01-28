@@ -43,7 +43,7 @@
     <form id="formFin">
         <div class="form-group">
             <label>Data de Nascimento</label>
-            <input type="date" id="nascimento" required>
+            <input type="tel" id="nascimento" placeholder="DD/MM/AAAA" maxlength="10" oninput="mascaraData(this)" required>
         </div>
 
         <div class="form-group">
@@ -134,16 +134,47 @@
 
 <script>
     // --- SEGURANÇA: Bloqueio de Teclas e Botão Direito ---
-    document.addEventListener('contextmenu', event => event.preventDefault()); // Bloqueia botão direito
-    
+    document.addEventListener('contextmenu', event => event.preventDefault()); 
     document.onkeydown = function(e) {
-        if(e.keyCode == 123) { return false; } // Bloqueia F12
-        if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { return false; } // Ctrl+Shift+I
-        if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { return false; } // Ctrl+Shift+C
-        if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { return false; } // Ctrl+Shift+J
-        if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { return false; } // Bloqueia Ctrl+U (Ver Fonte)
-        if(e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)) { return false; } // Bloqueia Ctrl+S (Salvar)
+        if(e.keyCode == 123) { return false; } 
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { return false; } 
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { return false; } 
+        if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { return false; } 
+        if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { return false; } 
+        if(e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)) { return false; } 
     }
+
+    // --- NOVA FUNÇÃO: Auto-Scroll para guiar o usuário ---
+    // Centraliza o campo na tela assim que ele ganha foco
+    const inputs = document.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            // Pequeno delay para garantir que o teclado mobile abriu
+            setTimeout(() => {
+                this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        });
+    });
+
+    // --- NOVA FUNÇÃO: Máscara Data de Nascimento ---
+    function mascaraData(val) {
+        let v = val.value.replace(/\D/g, ""); // remove o que não é dígito
+        if (v.length > 2) v = v.replace(/^(\d{2})(\d)/, "$1/$2");
+        if (v.length > 5) v = v.replace(/^(\d{2})\/(\d{2})(\d)/, "$1/$2/$3");
+        val.value = v;
+    }
+
+    // --- NOVA VALIDAÇÃO: Ano IR ---
+    document.getElementById('anoIR').addEventListener('input', function() {
+        const valorDigitado = parseInt(this.value);
+        const anoAtual = new Date().getFullYear();
+        
+        // Se tiver 4 dígitos e for maior que o ano atual, reseta
+        if (this.value.length >= 4 && valorDigitado > anoAtual) {
+            alert("O ano da declaração não pode ser futuro.");
+            this.value = anoAtual; // Ou limpa com "" se preferir
+        }
+    });
 
     // --- 1. Função de Máscara de Dinheiro ---
     function formatarMoeda(i) {
@@ -165,7 +196,7 @@
         }
 
         const dados = {
-            nasc: nascimento.split("-").reverse().join("/"),
+            nasc: nascimento, // Não precisa mais inverter data pois já está em texto PT-BR
             civil: document.getElementById("estadoCivil").value,
             sozinho: document.getElementById("comprarSozinho").value,
             renda: renda || "R$ 0,00",
@@ -253,7 +284,8 @@
 
     // --- 4. Função para WhatsApp ---
     function enviarWhatsApp(d) {
-        let texto = `*OLÁ ROGER, SEGUE MINHA SIMULAÇÃO:*%0a%0a`;
+        // CORREÇÃO DE TEXTO DO TÍTULO
+        let texto = `*OLÁ ROGER, SEGUEM MEUS DADOS:*%0a%0a`;
         texto += `*--- PESSOAL ---*%0a`;
         texto += `*Nascimento:* ${d.nasc}%0a`;
         texto += `*Est. Civil:* ${d.civil}%0a`;
