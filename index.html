@@ -109,7 +109,7 @@
 
         <div class="F_x1">
             <label>+3 anos de FGTS (Somando empresas)?</label>
-            <select id="x_g7">
+            <select id="x_g7" onfocus="_Ck_G7(this)">
                 <option value="Não">Não</option>
                 <option value="Sim">Sim</option>
             </select>
@@ -134,52 +134,26 @@
 <script>
 const _ID=i=>document.getElementById(i);
 
-/* Mascara de Data + Check de Validade para Liberar Próximo Campo */
 function _H1(v){
-    // Aplica a máscara
     let x=v.value.replace(/\D/g,"");
     if(x.length>2)x=x.replace(/^(\d{2})(\d)/,"$1/$2");
     if(x.length>5)x=x.replace(/^(\d{2})\/(\d{2})(\d)/,"$1/$2/$3");
     v.value=x;
-
-    // Lógica para destravar o próximo campo
-    let nextField = _ID("x_e2");
-    let isValid = false;
-
-    if(v.value.length === 10){
-        let p = v.value.split('/');
-        // Verifica validade estrita da data (evita 31/02, etc)
-        let d = new Date(p[2], p[1]-1, p[0]);
-        let now = new Date();
-        now.setHours(0,0,0,0);
-        
-        // Critérios: Data válida, não futura, ano >= 1900, e check de overflow de mês
-        if( !isNaN(d.getTime()) && 
-            d <= now && 
-            d.getFullYear() >= 1900 && 
-            d.getDate() == p[0] && 
-            d.getMonth() == p[1]-1
-          ){
-            isValid = true;
-        }
+    let nextField=_ID("x_e2"),isValid=!1;
+    if(v.value.length===10){
+        let p=v.value.split('/'),d=new Date(p[2],p[1]-1,p[0]),now=new Date();now.setHours(0,0,0,0);
+        if(!isNaN(d.getTime())&&d<=now&&d.getFullYear()>=1900&&d.getDate()==p[0]&&d.getMonth()==p[1]-1)isValid=!0;
     }
-    
-    // Se válido, destrava (disabled = false). Se inválido, trava (disabled = true).
-    nextField.disabled = !isValid;
+    nextField.disabled=!isValid;
 }
 
-/* Validação de Data no Blur (Foca de volta se inválido) */
 function _H2(v){
-    // Se tiver texto mas não for válido (verificado pela lógica acima ou incompleto)
-    // Reutilizamos a lógica simples: se o próximo campo está travado e tem texto aqui, algo está errado
-    let nextField = _ID("x_e2");
-    
-    if(v.value.length > 0 && nextField.disabled === true){
+    let nextField=_ID("x_e2");
+    if(v.value.length>0&&nextField.disabled===!0){
         _W99("Data de nascimento inválida ou futura.");
         v.value="";
-        // Garante que o próximo continue travado
-        nextField.disabled = true;
-        setTimeout(function(){ v.focus(); }, 200);
+        nextField.disabled=!0;
+        setTimeout(function(){v.focus()},200);
     }
 }
 
@@ -191,9 +165,9 @@ function _M1(i){
 }
 
 function _V_Req(i){
-    if(i.value === "" || i.value === "R$ 0,00"){
+    if(i.value===""||i.value==="R$ 0,00"){
         _W99("Este campo é obrigatório para a simulação.");
-        setTimeout(function(){ i.focus(); }, 200);
+        setTimeout(function(){i.focus()},200);
     }
 }
 
@@ -251,7 +225,17 @@ function _L2(){
     if(e!==""&&f!==""&&e===f&&e!=="R$ 0,00"){
         _W99("O valor da entrada não é o FGTS. É um outro recurso que você tem se a compra fosse feita hoje!");
         _ID("x_e6").value="";
-        setTimeout(()=>_ID("x_e6").focus(), 200); 
+        setTimeout(()=>_ID("x_e6").focus(),200); 
+    }
+}
+
+/* Nova Validação ao tentar focar no +3 Anos */
+function _Ck_G7(i){
+    let e=_ID("x_e6").value,f=_ID("x_f5").value;
+    // Se valores existirem e forem iguais (erro)
+    if(e!=="" && f!=="" && e===f && e!=="R$ 0,00"){
+        i.blur(); // Fecha o select imediatamente
+        _L2(); // Chama a validação e redireciona
     }
 }
 
