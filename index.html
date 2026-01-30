@@ -5,7 +5,46 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Simulação Premium</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>:root{--c1:#0056b3;--c2:#25D366;--bg:#f0f2f5;--w:#fff;--t:#1a1a1a;--g1:linear-gradient(135deg,#ece9e6 0%,#ffffff 100%);--sh:0 10px 30px -5px rgba(0,0,0,0.1)}*{box-sizing:border-box;outline:0;-webkit-tap-highlight-color:transparent}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#eef1f5;margin:0;padding:20px;display:flex;justify-content:center;align-items:center;min-height:100vh;color:var(--t);user-select:none;-webkit-font-smoothing:antialiased}.Kp_1{background:var(--w);padding:30px;border-radius:20px;box-shadow:var(--sh);width:100%;max-width:480px;display:flex;flex-direction:column;animation:_fi .6s ease-out}h2{text-align:center;margin:0 0 25px 0;font-size:1.25rem;color:#2c3e50;font-weight:800;letter-spacing:-0.5px;line-height:1.4;border-bottom:1px solid #edf2f7;padding-bottom:20px}.F_x1{margin-bottom:18px;position:relative}label{display:block;margin-bottom:8px;font-weight:600;font-size:.9rem;color:#4a5568;margin-left:4px}input,select{width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:1rem;background:#f8fafc;height:52px;color:#2d3748;transition:all .2s ease;appearance:none;-webkit-appearance:none}select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 15px center;background-size:16px}input:focus,select:focus{background:#fff;border-color:var(--c1);box-shadow:0 0 0 4px rgba(0,86,179,0.1)}input:disabled,select:disabled,button:disabled{background-color:#e2e8f0;color:#a0aec0;cursor:not-allowed;border-color:#cbd5e0;opacity:0.65}.B_z9{margin-top:30px}button{width:100%;padding:18px;border:none;border-radius:12px;font-size:1.05rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,#25D366 0%,#128C7E 100%);color:#fff;box-shadow:0 4px 15px rgba(37,211,102,0.3);transition:transform .2s,box-shadow .2s}button:active{transform:scale(.98);box-shadow:0 2px 8px rgba(37,211,102,0.2)}.ft_{margin-top:25px;text-align:center;font-size:.85rem;color:#718096;font-weight:500}._dh0{display:none!important}._gb1{display:grid;grid-template-columns:1fr 1fr;gap:12px}._kb2{background-color:#edf2f7;color:#4a5568;padding:12px;border-radius:10px;font-size:0.95rem;transition:all .2s;box-shadow:none;background:none;border:2px solid #e2e8f0}._kb2:hover{background:#e2e8f0}._kb2._s3{background-color:var(--c1);color:#fff;border-color:var(--c1);box-shadow:0 4px 12px rgba(0,86,179,0.2)}._ov9{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(26,32,44,.6);backdrop-filter:blur(4px);display:none;justify-content:center;align-items:center;z-index:9999}._bx8{background:#fff;padding:30px;border-radius:20px;width:90%;max-width:340px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.2);animation:_zm .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}._bx8 p{font-size:1.05rem;margin-bottom:25px;color:#2d3748;line-height:1.5}.bt_m{background:var(--c1);width:100%;box-shadow:0 4px 15px rgba(0,86,179,0.3)}@keyframes _fi{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes _zm{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}</style>
+<style>
+:root{--c1:#0056b3;--c2:#25D366;--err:#e53e3e;--bg:#f0f2f5;--w:#fff;--t:#1a1a1a;--sh:0 10px 30px -5px rgba(0,0,0,0.1)}
+*{box-sizing:border-box;outline:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#eef1f5;margin:0;padding:20px;display:flex;justify-content:center;align-items:center;min-height:100vh;color:var(--t);user-select:none;-webkit-font-smoothing:antialiased}
+.Kp_1{background:var(--w);padding:30px;border-radius:20px;box-shadow:var(--sh);width:100%;max-width:480px;display:flex;flex-direction:column;animation:_fi .6s ease-out}
+h2{text-align:center;margin:0 0 25px 0;font-size:1.25rem;color:#2c3e50;font-weight:800;letter-spacing:-0.5px;line-height:1.4;border-bottom:1px solid #edf2f7;padding-bottom:20px}
+.F_x1{margin-bottom:18px;position:relative}
+label{display:block;margin-bottom:8px;font-weight:600;font-size:.9rem;color:#4a5568;margin-left:4px}
+input,select{width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:1rem;background:#f8fafc;height:52px;color:#2d3748;transition:all .2s ease;appearance:none;-webkit-appearance:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 15px center;background-size:16px}
+input:focus,select:focus{background:#fff;border-color:var(--c1);box-shadow:0 0 0 4px rgba(0,86,179,0.1)}
+.B_z9{margin-top:30px}
+button{width:100%;padding:18px;border:none;border-radius:12px;font-size:1.05rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:10px;color:#fff;transition:all .3s ease}
+button:active{transform:scale(.98)}
+
+/* ESTILOS DINÂMICOS DO BOTÃO */
+.bt_ok {
+    background: linear-gradient(135deg,#25D366 0%,#128C7E 100%);
+    box-shadow: 0 4px 15px rgba(37,211,102,0.4);
+}
+.bt_err {
+    background: var(--err);
+    box-shadow: 0 4px 15px rgba(229,62,62,0.4);
+    animation: _shake 0.4s ease-in-out;
+}
+
+.ft_{margin-top:25px;text-align:center;font-size:.85rem;color:#718096;font-weight:500}
+._dh0{display:none!important}
+._gb1{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+._kb2{background-color:#edf2f7;color:#4a5568;padding:12px;border-radius:10px;font-size:0.95rem;transition:all .2s;box-shadow:none;background:none;border:2px solid #e2e8f0}
+._kb2:hover{background:#e2e8f0}
+._kb2._s3{background-color:var(--c1);color:#fff;border-color:var(--c1);box-shadow:0 4px 12px rgba(0,86,179,0.2)}
+._ov9{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(26,32,44,.6);backdrop-filter:blur(4px);display:none;justify-content:center;align-items:center;z-index:9999}
+._bx8{background:#fff;padding:30px;border-radius:20px;width:90%;max-width:340px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.2);animation:_zm .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}
+._bx8 p{font-size:1.05rem;margin-bottom:25px;color:#2d3748;line-height:1.5;text-align:left}
+.bt_m{background:var(--c1);width:100%;box-shadow:0 4px 15px rgba(0,86,179,0.3)}
+@keyframes _fi{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes _zm{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+@keyframes _shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+</style>
 </head>
 <body oncontextmenu="return!1" ondragstart="return!1">
 
@@ -17,12 +56,12 @@
         
         <div class="F_x1">
             <label>Data de Nascimento</label>
-            <input type="tel" id="x_d1" placeholder="DD/MM/AAAA" maxlength="10" oninput="_RST('x_d1');_H1(this)" onblur="_H2(this)" required>
+            <input type="tel" id="x_d1" placeholder="DD/MM/AAAA" maxlength="10" oninput="_H1(this);_Chk()" required>
         </div>
 
         <div class="F_x1">
             <label>Estado Civil</label>
-            <select id="x_e2" onchange="_RST('x_e2');_L0()" disabled>
+            <select id="x_e2" onchange="_L0();_Chk()">
                 <option value="" disabled selected>Selecione...</option>
                 <option value="Solteiro(a)">Solteiro(a)</option>
                 <option value="Casado(a)">Casado(a)</option>
@@ -35,7 +74,7 @@
 
         <div class="F_x1 _dh0" id="d_r3">
             <label>Regime de Comunhão de Bens</label>
-            <select id="x_r4" onchange="_RST('x_r4');_L1()" disabled>
+            <select id="x_r4" onchange="_L1();_Chk()">
                 <option value="" disabled selected>Selecione...</option>
                 <option value="Separação Total">Separação Total</option>
                 <option value="Comunhão Parcial">Comunhão Parcial</option>
@@ -46,8 +85,8 @@
         <div class="F_x1 _dh0" id="d_a5">
             <label id="l_a6">...</label>
             <div class="_gb1">
-                <button type="button" class="_kb2" onclick="_S1(this,'Sim')" disabled>Sim</button>
-                <button type="button" class="_kb2" onclick="_S1(this,'Não')" disabled>Não</button>
+                <button type="button" class="_kb2" onclick="_S1(this,'Sim')">Sim</button>
+                <button type="button" class="_kb2" onclick="_S1(this,'Não')">Não</button>
             </div>
             <input type="hidden" id="h_a7">
         </div>
@@ -55,15 +94,15 @@
         <div class="F_x1 _dh0" id="d_u8">
             <label>Possui documento da união?</label>
             <div class="_gb1">
-                <button type="button" class="_kb2" onclick="_S2(this,'Sim')" disabled>Sim</button>
-                <button type="button" class="_kb2" onclick="_S2(this,'Não')" disabled>Não</button>
+                <button type="button" class="_kb2" onclick="_S2(this,'Sim')">Sim</button>
+                <button type="button" class="_kb2" onclick="_S2(this,'Não')">Não</button>
             </div>
             <input type="hidden" id="h_u9">
         </div>
 
         <div class="F_x1">
             <label>Pretende comprar sozinho(a)?</label>
-            <select id="x_c0" onchange="_RST('x_c0');_Ok('x_r1')" disabled>
+            <select id="x_c0" onchange="_Chk()">
                 <option value="Sim">Sim</option>
                 <option value="Não">Não</option>
             </select>
@@ -71,12 +110,12 @@
 
         <div class="F_x1">
             <label>Renda Bruta Mensal</label>
-            <input type="text" id="x_r1" placeholder="R$ 0,00" inputmode="numeric" oninput="_RST('x_r1')" onkeyup="_M1(this)" onblur="_V_Req(this, 'x_t2')" disabled required>
+            <input type="text" id="x_r1" placeholder="R$ 0,00" inputmode="numeric" onkeyup="_M1(this)" oninput="_Chk()" required>
         </div>
 
         <div class="F_x1">
             <label>Tipo de Renda</label>
-            <select id="x_t2" onchange="_RST('x_t2');_Ok('x_d3')" disabled>
+            <select id="x_t2" onchange="_Chk()">
                 <option value="Formal CLT">Formal CLT</option>
                 <option value="Informal / Autônomo">Informal / Autônomo</option>
                 <option value="Pró Labore">Pró Labore</option>
@@ -86,7 +125,7 @@
 
         <div class="F_x1">
             <label>Declarou Imposto de Renda?</label>
-            <select id="x_d3" onchange="_RST('x_d3');_ChkIR()" disabled>
+            <select id="x_d3" onchange="_ChkIR();_Chk()">
                 <option value="Sim">Sim</option>
                 <option value="Não">Não</option>
             </select>
@@ -94,22 +133,22 @@
 
         <div class="F_x1">
             <label>Último ano da declaração</label>
-            <input type="number" id="x_y4" placeholder="Ex: 2024" inputmode="numeric" oninput="_RST('x_y4');_ChkYr(this)" disabled>
+            <input type="number" id="x_y4" placeholder="Ex: 2024" inputmode="numeric" oninput="_Chk()" disabled>
         </div>
 
         <div class="F_x1">
             <label>Saldo de FGTS</label>
-            <input type="text" id="x_f5" placeholder="R$ 0,00" inputmode="numeric" oninput="_RST('x_f5')" onkeyup="_M1(this)" onblur="_V_Req(this, 'x_e6')" disabled required>
+            <input type="text" id="x_f5" placeholder="R$ 0,00" inputmode="numeric" onkeyup="_M1(this)" oninput="_Chk()" required>
         </div>
 
         <div class="F_x1">
             <label>Valor da Entrada (Recurso Próprio)</label>
-            <input type="text" id="x_e6" placeholder="R$ 0,00" inputmode="numeric" oninput="_RST('x_e6')" onkeyup="_M1(this)" onblur="_L2()" disabled required>
+            <input type="text" id="x_e6" placeholder="R$ 0,00" inputmode="numeric" onkeyup="_M1(this)" oninput="_Chk()" required>
         </div>
 
         <div class="F_x1">
             <label>+3 anos de FGTS (Somando empresas)?</label>
-            <select id="x_g7" onfocus="_Ck_G7(this)" onchange="_RST('x_g7');_Ok('x_v8')" disabled>
+            <select id="x_g7" onchange="_Chk()">
                 <option value="Não">Não</option>
                 <option value="Sim">Sim</option>
             </select>
@@ -117,14 +156,14 @@
 
         <div class="F_x1">
             <label>Possui restrições/dívidas?</label>
-            <select id="x_v8" onchange="_Ok('bt_send')" disabled>
+            <select id="x_v8" onchange="_Chk()">
                 <option value="Não">Não</option>
                 <option value="Sim">Sim</option>
             </select>
         </div>
 
         <div class="B_z9">
-            <button type="button" id="bt_send" onclick="_EXE()" disabled>Enviar Análise</button>
+            <button type="button" id="bt_send" class="bt_err" onclick="_TrySend()">Corrija as Informações</button>
         </div>
 
     </form>
@@ -133,161 +172,142 @@
 
 <script>
 const _ID=i=>document.getElementById(i);
-const _Ok=id=>{ let el=_ID(id); if(el) el.disabled=!1; }
-const _Lk=id=>{ let el=_ID(id); if(el) { el.disabled=!0; el.value=""; } }
 
-/* ORDEM HIERÁRQUICA DOS CAMPOS */
-const _FLDS = ['x_d1', 'x_e2', 'x_r4', 'x_c0', 'x_r1', 'x_t2', 'x_d3', 'x_y4', 'x_f5', 'x_e6', 'x_g7', 'x_v8'];
-
-/* FUNÇÃO MESTRE DE RESET (Cascata) */
-function _RST(crrId){
-    let idx = _FLDS.indexOf(crrId);
-    if(idx === -1) return; // Segurança
-
-    // 1. Loop para apagar e desabilitar tudo que vem DEPOIS do campo atual
-    for(let i = idx + 1; i < _FLDS.length; i++){
-        let el = _ID(_FLDS[i]);
-        if(el){
-            el.value = "";
-            el.disabled = true;
-            if(el.tagName === 'SELECT') el.selectedIndex = 0; // Reseta Selects para o topo
-        }
-    }
-
-    // 2. Limpezas Específicas de Interface (Divs e Botões Ocultos)
-    // Se resetar algo antes da pergunta de Compra Sozinho, reseta os sub-campos de Estado Civil
-    if(idx < _FLDS.indexOf('x_c0')) {
-         _ID("d_r3").classList.add("_dh0");
-         _ID("d_a5").classList.add("_dh0");
-         _ID("d_u8").classList.add("_dh0");
-         document.querySelectorAll('._kb2').forEach(b=>b.classList.remove('_s3'));
-         _ID("h_a7").value=""; _ID("h_u9").value="";
-         // Desabilita botões internos também
-         document.querySelectorAll('._kb2').forEach(b=>b.disabled=true);
-    }
-
-    // 3. Sempre bloqueia o botão de envio se houve alteração
-    _ID("bt_send").disabled = true;
-}
-
-/* --- FUNÇÕES ESPECÍFICAS (Mantidas e Integradas) --- */
-
-/* Data: Usa _RST no input, então se alterar, limpa tudo */
+/* --- MASCARAS --- */
 function _H1(v){
     let x=v.value.replace(/\D/g,"");
     if(x.length>2)x=x.replace(/^(\d{2})(\d)/,"$1/$2");
     if(x.length>5)x=x.replace(/^(\d{2})\/(\d{2})(\d)/,"$1/$2/$3");
     v.value=x;
-
-    if(v.value.length===10){
-        let p=v.value.split('/'),d=new Date(p[2],p[1]-1,p[0]),now=new Date();now.setHours(0,0,0,0);
-        let isValid = (!isNaN(d.getTime()) && d <= now && d.getFullYear() >= 1900 && d.getDate() == p[0] && d.getMonth() == p[1]-1);
-        if(isValid){
-            _Ok('x_e2');
-        } else {
-            v.value=""; _W99("Data inválida! Verifique dia, mês e ano.");
-            // O próximo continua travado pois _RST já rodou no input
-        }
-    }
 }
-function _H2(v){ if(v.value.length>0 && v.value.length<10) { _W99("Data incompleta."); v.value=""; _Lk('x_e2'); setTimeout(()=>v.focus(),200); } }
-
-function _L0(){
-    let e=_ID("x_e2").value,r=_ID("d_r3"),a=_ID("d_a5"),u=_ID("d_u8");
-    r.classList.add("_dh0");a.classList.add("_dh0");u.classList.add("_dh0");
-    _ID("x_r4").value="";
-    
-    if(e==="Solteiro(a)"){
-        if(confirm("Tem certeza que nunca foi casado?")){ _Ok('x_c0'); } else { _ID("x_e2").value=""; }
-    } else if(e==="Casado(a)"){
-        r.classList.remove("_dh0"); _Ok('x_r4');
-    } else if(e==="União Estável"){
-        u.classList.remove("_dh0");
-        u.querySelectorAll('button').forEach(b=>b.disabled=!1);
-    } else { 
-        let f={"Separado(a)":"Separação averbada?","Divorciado(a)":"Divórcio averbado?","Viúvo(a)":"Viuvez averbada?"};
-        if(f[e]){
-            a.classList.remove("_dh0");
-            _ID("l_a6").innerText=f[e];
-            a.querySelectorAll('button').forEach(b=>b.disabled=!1);
-        }
-    }
-}
-
-function _L1(){
-    let v=_ID("x_r4").value,c=_ID("x_c0");
-    if(v==="Comunhão Parcial"||v==="Comunhão Universal"){ c.value="Não"; }
-    _Ok('x_c0');
-}
-
-/* Botões Extras também chamam _RST baseado no campo pai lógico (Estado Civil = x_e2) */
-function _S1(b,v){
-    // Reset manual pois botões não estão na lista _FLDS principal, mas afetam fluxo pós-civil
-    _RST('x_e2'); 
-    b.parentElement.querySelectorAll('._kb2').forEach(x=>x.classList.remove('_s3'));
-    b.classList.add('_s3');
-    _ID("h_a7").value=v;
-    _Ok('x_c0');
-}
-function _S2(b,v){
-    _RST('x_e2');
-    b.parentElement.querySelectorAll('._kb2').forEach(x=>x.classList.remove('_s3'));
-    b.classList.add('_s3');
-    _ID("h_u9").value=v;
-    _Ok('x_c0');
-}
-
-/* Validação Texto */
-function _V_Req(i, nextId){
-    if(i.value===""||i.value==="R$ 0,00"){
-        _W99("Campo obrigatório."); setTimeout(()=>i.focus(),200);
-    } else {
-        _Ok(nextId);
-    }
-}
-
-function _ChkIR(){
-    let v=_ID("x_d3").value;
-    if(v==="Sim"){ _Ok('x_y4'); } else { _Lk("x_y4"); _ID("x_y4").disabled=!0; _Ok('x_f5'); }
-}
-
-function _ChkYr(i){
-    if(i.value.length===4){
-        let y=parseInt(i.value),cur=new Date().getFullYear();
-        if(y>cur || y<2000) { _W99("Ano inválido"); i.value=""; return; }
-        _Ok('x_f5');
-    }
-}
-
-function _L2(){
-    let e=_ID("x_e6").value,f=_ID("x_f5").value;
-    if(e!==""&&f!==""&&e===f&&e!=="R$ 0,00"){
-        _W99("Entrada não pode ser igual ao FGTS.");
-        _ID("x_e6").value=""; setTimeout(()=>_ID("x_e6").focus(),200); 
-    } else if(e!=="R$ 0,00" && e!=="") {
-        _Ok('x_g7');
-    }
-}
-
-function _Ck_G7(i){
-    let e=_ID("x_e6").value,f=_ID("x_f5").value;
-    if(e!=="" && f!=="" && e===f && e!=="R$ 0,00"){ i.blur(); _L2(); }
-}
-
-/* Utils */
 function _M1(i){
     let v=i.value.replace(/\D/g,'');
     v=(v/100).toFixed(2)+'';
     v=v.replace(".",",").replace(/(\d)(?=(\d{3})+(?!\d))/g,'$1.');
     i.value="R$ "+v;
 }
+
+/* --- LÓGICA DE EXIBIÇÃO DE CAMPOS (Visual apenas, sem bloqueio) --- */
+function _L0(){
+    let e=_ID("x_e2").value,r=_ID("d_r3"),a=_ID("d_a5"),u=_ID("d_u8");
+    r.classList.add("_dh0");a.classList.add("_dh0");u.classList.add("_dh0");
+    
+    if(e==="Casado(a)") r.classList.remove("_dh0");
+    else if(e==="União Estável") u.classList.remove("_dh0");
+    else {
+        let f={"Separado(a)":"Separação averbada?","Divorciado(a)":"Divórcio averbado?","Viúvo(a)":"Viuvez averbada?"};
+        if(f[e]){
+            a.classList.remove("_dh0");
+            _ID("l_a6").innerText=f[e];
+        }
+    }
+}
+
+function _L1(){
+    let v=_ID("x_r4").value,c=_ID("x_c0");
+    if(v==="Comunhão Parcial"||v==="Comunhão Universal") c.value="Não";
+}
+
+function _S1(b,v){
+    b.parentElement.querySelectorAll('._kb2').forEach(x=>x.classList.remove('_s3'));
+    b.classList.add('_s3');
+    _ID("h_a7").value=v;
+    _Chk(); // Verifica imediatamente ao clicar
+}
+function _S2(b,v){
+    b.parentElement.querySelectorAll('._kb2').forEach(x=>x.classList.remove('_s3'));
+    b.classList.add('_s3');
+    _ID("h_u9").value=v;
+    _Chk(); // Verifica imediatamente ao clicar
+}
+
+function _ChkIR(){
+    let v=_ID("x_d3").value, y=_ID("x_y4");
+    if(v==="Sim") { y.disabled=false; } 
+    else { y.disabled=true; y.value=""; }
+}
+
+/* --- CÉREBRO DA VALIDAÇÃO (Lista todos os erros atuais) --- */
+function _GetErrors(){
+    let errs = [];
+    
+    // 1. DATA (Length 10 e lógica)
+    let dt = _ID("x_d1").value;
+    if(dt.length !== 10) errs.push("- Data de Nascimento incompleta");
+    else {
+        let p=dt.split('/'),d=new Date(p[2],p[1]-1,p[0]),now=new Date();now.setHours(0,0,0,0);
+        if(isNaN(d.getTime()) || d > now || d.getFullYear() < 1900 || d.getDate()!=p[0]) errs.push("- Data de Nascimento inválida");
+    }
+
+    // 2. ESTADO CIVIL e sub-campos
+    let ec = _ID("x_e2").value;
+    if(!ec) errs.push("- Selecione o Estado Civil");
+    else {
+        if(ec==="Casado(a)" && !_ID("x_r4").value) errs.push("- Informe o Regime de Bens");
+        if(ec==="União Estável" && !_ID("h_u9").value) errs.push("- Informe se possui documento da União");
+        if(["Separado(a)","Divorciado(a)","Viúvo(a)"].includes(ec) && !_ID("h_a7").value) errs.push("- Responda a pergunta sobre Averbação");
+    }
+
+    // 3. FINANCEIRO
+    let rd = _ID("x_r1").value;
+    if(!rd || rd==="R$ 0,00") errs.push("- Informe a Renda Bruta");
+
+    let fg = _ID("x_f5").value;
+    if(!fg) errs.push("- Informe o saldo de FGTS (ou 0)");
+
+    let en = _ID("x_e6").value;
+    if(!en) errs.push("- Informe o valor da Entrada");
+
+    // Validação Cruzada: Entrada vs FGTS
+    if(en && fg && en!=="R$ 0,00" && en===fg) errs.push("- Entrada não pode ser igual ao FGTS (Recursos diferentes)");
+
+    // 4. IMPOSTO DE RENDA
+    if(_ID("x_d3").value === "Sim"){
+        let yr = _ID("x_y4").value;
+        let cur = new Date().getFullYear();
+        if(!yr || yr < 2000 || yr > cur) errs.push("- Ano do IR inválido");
+    }
+
+    return errs;
+}
+
+/* --- ATUALIZADOR DO BOTÃO (Roda em tempo real) --- */
+function _Chk(){
+    let errs = _GetErrors();
+    let btn = _ID("bt_send");
+    
+    // Se não houver nenhum erro (array vazio)
+    if(errs.length === 0){
+        btn.className = "bt_ok"; // Fica Verde
+        btn.innerText = "Enviar Análise";
+    } else {
+        // Se houver qualquer erro
+        btn.className = "bt_err"; // Fica Vermelho
+        btn.innerText = "Corrija as Informações";
+    }
+}
+
+/* --- AÇÃO DO BOTÃO --- */
+function _TrySend(){
+    let errs = _GetErrors();
+    
+    if(errs.length > 0){
+        // Se clicou no vermelho, mostra o que falta
+        let msg = "<strong>Por favor, corrija os itens abaixo:</strong><br><br>" + errs.join("<br>");
+        _W99(msg);
+    } else {
+        // Se está verde, envia
+        _EXE();
+    }
+}
+
+/* --- MODAIS E UTILITÁRIOS --- */
 function _W99(m){ _ID("Z_txt").innerHTML=m; _ID("Z_99").style.display="flex"; }
 function _X99(){ _ID("Z_99").style.display="none"; }
 
-/* Envio */
+/* --- GERAÇÃO DE PDF E WHATSAPP --- */
 function _EXE(){
     let n=_ID("x_d1").value,r=_ID("x_r1").value;
-    if(!n||!r||r==="R$ 0,00"){_W99("Dados incompletos.");return}
     let ec=_ID("x_e2").value,ex="",rg=_ID("x_r4").value,av=_ID("h_a7").value,ue=_ID("h_u9").value;
     if(ec==="Casado(a)"&&rg)ex=rg;
     if(ec==="União Estável"&&ue)ex=(ue==="Sim")?"Com Documento":"Sem Documento";
@@ -298,12 +318,19 @@ function _EXE(){
     let d={n:n,c:ec,s:_ID("x_c0").value,r:r,t:_ID("x_t2").value,d:_ID("x_d3").value,a:_ID("x_y4").value||"--",f:_ID("x_f5").value,e:_ID("x_e6").value,tf:_ID("x_g7").value,dv:_ID("x_v8").value,x:ex,h:new Date().toLocaleDateString("pt-BR")};
     _G_PDF(d);_S_WA(d);
 }
+
 function _G_PDF(o){const{jsPDF}=window.jspdf,d=new jsPDF({unit:"mm",format:"a5"});d.setFillColor(255,255,255);d.rect(0,0,148,210,"F");d.setFont("helvetica","bold");d.setFontSize(11);d.setTextColor(0,50,100);d.text("SIMULAÇÃO DE FINANCIAMENTO",74,15,{align:"center"});d.setFontSize(8);d.setTextColor(0);let y=30;const _ln=(l,v)=>{d.text(l,10,y);d.text(v,138,y,{align:"right"});d.line(10,y+2,138,y+2);y+=8};let ed=o.c;if(o.x)ed+=` - ${o.x}`;_ln("Nome/Data:",o.n);_ln("Estado Civil:",ed);_ln("Comprar Sozinho:",o.s);_ln("Renda:",o.r);_ln("Tipo:",o.t);_ln("Declarou IR:",o.d);if(o.d==="Sim")_ln("Ano:",o.a);_ln("FGTS:",o.f);_ln("Entrada:",o.e);_ln("+3 Anos FGTS:",o.tf);_ln("Dívidas:",o.dv);d.save("Simulacao.pdf")}
+
 function _S_WA(o){let e=o.x?` (${o.x})`:"",t=`*DADOS SIMULAÇÃO:*%0aNasc: ${o.n}%0aCivil: ${o.c}${e}%0aSó: ${o.s}%0aRenda: ${o.r} (${o.t})%0aIR: ${o.d} / ${o.a}%0aFGTS: ${o.f}%0aEntrada: ${o.e}%0a3 Anos: ${o.tf}%0aDívidas: ${o.dv}`;window.open(`https://wa.me/5531936180070?text=${t}`,"_blank")}
 
+/* Scroll suave ao focar */
 document.querySelectorAll('input,select').forEach(i=>{
     i.addEventListener('focus',function(){ setTimeout(()=>{this.scrollIntoView({behavior:'smooth',block:'center'})},300) })
 });
+
+/* Executa verificação inicial ao carregar (para deixar botão vermelho) */
+setTimeout(_Chk, 100);
+
 </script>
 </body>
 </html>
