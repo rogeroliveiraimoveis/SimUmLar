@@ -133,79 +133,95 @@
 
 <script>
 const _ID=i=>document.getElementById(i);
-// Função Genérica para Habilitar o Próximo Campo
+// Libera próximo
 const _Ok=id=>{ let el=_ID(id); if(el) el.disabled=!1; }
+// Bloqueia próximo (para resetar fluxo)
+const _Lk=id=>{ let el=_ID(id); if(el) { el.disabled=!0; el.value=""; } }
 
-/* DATA: Valida e libera x_e2 */
+/* DATA BLINDADA */
 function _H1(v){
+    // 1. Bloqueia o próximo campo IMEDIATAMENTE a qualquer toque
+    // Isso previne que o usuário digite certo, desbloqueie, volte e digite errado.
+    _Lk('x_e2');
+
+    // 2. Aplica Máscara
     let x=v.value.replace(/\D/g,"");
     if(x.length>2)x=x.replace(/^(\d{2})(\d)/,"$1/$2");
     if(x.length>5)x=x.replace(/^(\d{2})\/(\d{2})(\d)/,"$1/$2/$3");
     v.value=x;
-    let isValid=!1;
+
+    // 3. Validação Automática ao completar 10 dígitos
     if(v.value.length===10){
-        let p=v.value.split('/'),d=new Date(p[2],p[1]-1,p[0]),now=new Date();now.setHours(0,0,0,0);
-        if(!isNaN(d.getTime())&&d<=now&&d.getFullYear()>=1900&&d.getDate()==p[0]&&d.getMonth()==p[1]-1)isValid=!0;
+        let p=v.value.split('/');
+        let d=new Date(p[2],p[1]-1,p[0]);
+        let now=new Date(); now.setHours(0,0,0,0);
+        
+        let isValid = (
+            !isNaN(d.getTime()) && 
+            d <= now && 
+            d.getFullYear() >= 1900 && 
+            d.getDate() == p[0] && 
+            d.getMonth() == p[1]-1
+        );
+
+        if(isValid){
+            _Ok('x_e2'); // Destrava se for perfeito
+        } else {
+            // ERRO IMEDIATO: Limpa o campo e avisa.
+            v.value="";
+            _W99("Data inválida! Verifique dia, mês e ano.");
+            // O próximo continua travado pelo comando _Lk lá no topo da função
+        }
     }
-    // Libera o próximo apenas se válido
-    if(isValid) _Ok('x_e2');
 }
 
 function _H2(v){
-    // Se inválido no blur, avisa e limpa (mantém próximo travado pois não chamou _Ok)
-    if(v.value.length>0 && v.value.length<10) { 
-        _W99("Data inválida."); v.value=""; setTimeout(()=>v.focus(),200); 
+    // Validação extra no blur: Se sair sem terminar (ex: digitou "10/10/20")
+    if(v.value.length > 0 && v.value.length < 10) { 
+        _W99("Data incompleta."); 
+        v.value=""; 
+        _Lk('x_e2'); // Garante bloqueio
+        setTimeout(()=>v.focus(),200); 
     }
 }
 
-/* ESTADO CIVIL: Lógica de Caminho */
+/* Resto das funções mantidas e ajustadas para fluxo sequencial */
+
 function _L0(){
     let e=_ID("x_e2").value,r=_ID("d_r3"),a=_ID("d_a5"),u=_ID("d_u8");
-    
-    // Esconde/Reseta auxiliares
     r.classList.add("_dh0");a.classList.add("_dh0");u.classList.add("_dh0");
     _ID("x_r4").value="";
     
-    // Caminhos
     if(e==="Solteiro(a)"){
         if(confirm("Tem certeza que nunca foi casado? Se sim, clique OK.")){
-            _Ok('x_c0'); // Pula direto para Compra
+            _Ok('x_c0'); 
         } else {
-            _ID("x_e2").value=""; // Reseta se cancelou
+            _ID("x_e2").value=""; 
         }
     } else if(e==="Casado(a)"){
         r.classList.remove("_dh0");
-        _Ok('x_r4'); // Abre Regime
+        _Ok('x_r4');
     } else if(e==="União Estável"){
         u.classList.remove("_dh0");
-        // Habilita botões internos
         u.querySelectorAll('button').forEach(b=>b.disabled=!1);
-    } else { // Separado/Divorciado/Viúvo
+    } else { 
         let f={"Separado(a)":"Está averbada a separação na Certidão de Casamento?","Divorciado(a)":"Está averbado o divórcio na Certidão de Casamento?","Viúvo(a)":"Está averbado que é viúvo(a) na Certidão de Casamento?"};
         if(f[e]){
             a.classList.remove("_dh0");
             _ID("l_a6").innerText=f[e];
-            // Habilita botões internos
             a.querySelectorAll('button').forEach(b=>b.disabled=!1);
         }
     }
 }
 
-/* REGIME -> Libera Compra */
 function _L1(){
     let v=_ID("x_r4").value,c=_ID("x_c0");
     if(v==="Comunhão Parcial"||v==="Comunhão Universal"){
-        c.value="Não"; _Ok('x_c0'); // Define e libera, mas usuário pode não precisar mexer
-        _Ok('x_r1'); // Como já definiu "Não", libera a Renda direto? Não, deixa ele ver.
-        // Melhor: Deixa o user ver que está "Não" em x_c0, mas habilita x_c0 ou x_r1?
-        // Vamos habilitar x_c0 para ele ver, mas talvez travar a mudança se quiser.
-        // O código original desabilitava x_c0. Aqui vamos manter x_c0 desabilitado se for forçado?
-        // Para manter o fluxo sequencial: Habilita x_c0, mas define valor.
+        c.value="Não"; 
     }
     _Ok('x_c0');
 }
 
-/* BOTÕES AUXILIARES -> Liberam Compra */
 function _S1(b,v){
     b.parentElement.querySelectorAll('._kb2').forEach(x=>x.classList.remove('_s3'));
     b.classList.add('_s3');
@@ -219,7 +235,6 @@ function _S2(b,v){
     _Ok('x_c0');
 }
 
-/* VALIDAÇÃO GENÉRICA DE TEXTO (Renda/FGTS) -> Libera Next */
 function _V_Req(i, nextId){
     if(i.value===""||i.value==="R$ 0,00"){
         _W99("Campo obrigatório.");
@@ -229,18 +244,16 @@ function _V_Req(i, nextId){
     }
 }
 
-/* IR CHECK */
 function _ChkIR(){
     let v=_ID("x_d3").value;
     if(v==="Sim"){
         _Ok('x_y4');
     } else {
-        _ID("x_y4").value=""; _ID("x_y4").disabled=!0; // Reseta ano
-        _Ok('x_f5'); // Pula para FGTS
+        _Lk("x_y4"); _ID("x_y4").disabled=!0;
+        _Ok('x_f5');
     }
 }
 
-/* ANO IR CHECK */
 function _ChkYr(i){
     if(i.value.length===4){
         let y=parseInt(i.value),cur=new Date().getFullYear();
@@ -249,11 +262,10 @@ function _ChkYr(i){
     }
 }
 
-/* ENTRADA vs FGTS -> Libera +3 Anos */
 function _L2(){
     let e=_ID("x_e6").value,f=_ID("x_f5").value;
     if(e!==""&&f!==""&&e===f&&e!=="R$ 0,00"){
-        _W99("O valor da entrada não é o FGTS. É um recurso próprio!");
+        _W99("O valor da entrada não pode ser igual ao FGTS.");
         _ID("x_e6").value="";
         setTimeout(()=>_ID("x_e6").focus(),200); 
     } else if(e!=="R$ 0,00" && e!=="") {
@@ -261,7 +273,6 @@ function _L2(){
     }
 }
 
-/* +3 ANOS Check */
 function _Ck_G7(i){
     let e=_ID("x_e6").value,f=_ID("x_f5").value;
     if(e!=="" && f!=="" && e===f && e!=="R$ 0,00"){
@@ -270,7 +281,6 @@ function _Ck_G7(i){
     }
 }
 
-/* Utilitários Visuais */
 function _M1(i){
     let v=i.value.replace(/\D/g,'');
     v=(v/100).toFixed(2)+'';
@@ -280,7 +290,6 @@ function _M1(i){
 function _W99(m){ _ID("Z_txt").innerHTML=m; _ID("Z_99").style.display="flex"; }
 function _X99(){ _ID("Z_99").style.display="none"; }
 
-/* Submit e PDF (Mantidos iguais) */
 function _EXE(){
     let n=_ID("x_d1").value,r=_ID("x_r1").value;
     if(!n||!r||r==="R$ 0,00"){_W99("Dados incompletos.");return}
