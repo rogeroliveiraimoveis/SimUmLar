@@ -16,21 +16,32 @@ label{display:block;margin-bottom:8px;font-weight:600;font-size:.9rem;color:#4a5
 input,select{width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:1rem;background:#f8fafc;height:52px;color:#2d3748;transition:all .2s ease;appearance:none;-webkit-appearance:none}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 15px center;background-size:16px}
 input:focus,select:focus{background:#fff;border-color:var(--c1);box-shadow:0 0 0 4px rgba(0,86,179,0.1)}
+
 .B_z9{margin-top:30px}
 button{width:100%;padding:18px;border:none;border-radius:12px;font-size:1.05rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:10px;color:#fff;transition:all .3s ease}
 button:active{transform:scale(.98)}
+
+/* Cores do Botão Principal */
 .bt_ok {background: linear-gradient(135deg,#25D366 0%,#128C7E 100%);box-shadow: 0 4px 15px rgba(37,211,102,0.4);}
 .bt_err {background: var(--err);box-shadow: 0 4px 15px rgba(229,62,62,0.4);animation: _shake 0.4s ease-in-out;}
+
+/* Botões Azuis e Secundários */
+.bt_m{background:var(--c1);width:100%;box-shadow:0 4px 15px rgba(0,86,179,0.3)}
+.bt_g{background:#718096;width:100%;box-shadow:none} 
+
 .ft_{margin-top:25px;text-align:center;font-size:.85rem;color:#718096;font-weight:500}
 ._dh0{display:none!important}
 ._gb1{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 ._kb2{background-color:#edf2f7;color:#4a5568;padding:12px;border-radius:10px;font-size:0.95rem;transition:all .2s;box-shadow:none;background:none;border:2px solid #e2e8f0}
 ._kb2:hover{background:#e2e8f0}
 ._kb2._s3{background-color:var(--c1);color:#fff;border-color:var(--c1);box-shadow:0 4px 12px rgba(0,86,179,0.2)}
+
+/* MODAL / TELA BONITA */
 ._ov9{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(26,32,44,.6);backdrop-filter:blur(4px);display:none;justify-content:center;align-items:center;z-index:9999}
 ._bx8{background:#fff;padding:30px;border-radius:20px;width:90%;max-width:340px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.2);animation:_zm .3s cubic-bezier(0.175, 0.885, 0.32, 1.275)}
 ._bx8 p{font-size:1.05rem;margin-bottom:25px;color:#2d3748;line-height:1.5;text-align:left}
-.bt_m{background:var(--c1);width:100%;box-shadow:0 4px 15px rgba(0,86,179,0.3)}
+._bx8 h3{margin-top:0;color:var(--c1);margin-bottom:15px}
+
 @keyframes _fi{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 @keyframes _zm{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
 @keyframes _shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
@@ -38,7 +49,24 @@ button:active{transform:scale(.98)}
 </head>
 <body oncontextmenu="return!1" ondragstart="return!1">
 
-<div id="Z_99" class="_ov9"><div class="_bx8"><p id="Z_txt">...</p><button class="bt_m" onclick="_X99()">ENTENDI</button></div></div>
+<div id="Z_99" class="_ov9">
+    <div class="_bx8">
+        <h3 id="Z_tit">Atenção</h3>
+        <p id="Z_txt">...</p>
+        <button class="bt_m" onclick="_X99()">ENTENDI</button>
+    </div>
+</div>
+
+<div id="Z_CNF" class="_ov9">
+    <div class="_bx8">
+        <h3>Confirmação</h3>
+        <p id="Z_txt_c">...</p>
+        <div class="_gb1">
+            <button class="bt_g" onclick="_CnfNo()">CORRIGIR</button>
+            <button class="bt_m" onclick="_CnfYes()">SIM, CONFIRMO</button>
+        </div>
+    </div>
+</div>
 
 <div class="Kp_1">
     <h2>Simulação de Financiamento</h2>
@@ -177,46 +205,51 @@ function _M1(i){
     i.value="R$ "+v;
 }
 
-/* --- REGRAS DE VISIBILIDADE E LÓGICA (RESTAURADAS) --- */
+/* --- LÓGICA DE ESTADO CIVIL COM MODAL BONITA --- */
 function _L0(){
     let e=_ID("x_e2").value,r=_ID("d_r3"),a=_ID("d_a5"),u=_ID("d_u8");
     
-    // 1. Reseta tudo ao mudar (esconde e limpa valores para não sujar validação)
+    // Reseta visualização
     r.classList.add("_dh0"); _ID("x_r4").value="";
     a.classList.add("_dh0"); _ID("h_a7").value="";
     u.classList.add("_dh0"); _ID("h_u9").value="";
     document.querySelectorAll('._kb2').forEach(b=>b.classList.remove('_s3'));
 
-    // 2. Aplica as Regras Específicas
     if(e==="Solteiro(a)"){
-        // Alerta clássico de regra
-        if(!confirm("Tem a certeza absoluta que nunca foi casado(a)?\n\nSe já foi casado e se divorciou, escolha 'Divorciado'.\nSe é viúvo, escolha 'Viúvo'.\n\nSe é realmente Solteiro(a), clique em OK.")) {
-            _ID("x_e2").value=""; // Reseta se o usuário cancelar
-        }
+        // ABRE MODAL BONITA EM VEZ DE CONFIRM
+        _ID("Z_txt_c").innerHTML = "Tem certeza absoluta que nunca foi casado(a)?<br><br>Se já foi casado(a) e divorciou, selecione <b>Divorciado</b>.<br>Se é viúvo(a), selecione <b>Viúvo</b>.";
+        _ID("Z_CNF").style.display = "flex";
     } 
     else if(e==="Casado(a)"){
-        r.classList.remove("_dh0"); // Mostra Regime
+        r.classList.remove("_dh0");
     } 
     else if(e==="União Estável"){
-        u.classList.remove("_dh0"); // Mostra Documento
+        u.classList.remove("_dh0");
     } 
     else {
-        // Separado, Divorciado, Viúvo
         let f={"Separado(a)":"Separação averbada?","Divorciado(a)":"Divórcio averbado?","Viúvo(a)":"Viuvez averbada?"};
         if(f[e]){
-            a.classList.remove("_dh0"); // Mostra Averbação
+            a.classList.remove("_dh0");
             _ID("l_a6").innerText=f[e];
         }
     }
 }
 
+/* Funções da Modal de Confirmação */
+function _CnfYes(){
+    // Usuário confirmou ser solteiro
+    _ID("Z_CNF").style.display="none";
+}
+function _CnfNo(){
+    // Usuário quer corrigir (não é solteiro)
+    _ID("x_e2").value=""; // Limpa o campo
+    _ID("Z_CNF").style.display="none";
+    _Chk(); // Atualiza validação para erro
+}
+
 function _L1(){
     let v=_ID("x_r4").value,c=_ID("x_c0");
-    // Regra: Comunhão Parcial/Universal obriga cônjuge a participar
-    if(v==="Comunhão Parcial"||v==="Comunhão Universal"){
-        c.value="Não";
-        // Opcional: Avisar o usuário visualmente ou apenas setar
-    }
+    if(v==="Comunhão Parcial"||v==="Comunhão Universal") c.value="Não";
 }
 
 function _S1(b,v){
@@ -238,49 +271,35 @@ function _ChkIR(){
     else { y.disabled=true; y.value=""; }
 }
 
-/* --- VALIDAÇÃO INTELIGENTE --- */
+/* --- VALIDAÇÃO --- */
 function _GetErrors(){
     let errs = [];
     
-    // Data
     let dt = _ID("x_d1").value;
-    if(dt.length !== 10) errs.push("- Data de Nascimento incompleta");
+    if(dt.length !== 10) errs.push("Data de Nascimento incompleta");
     else {
         let p=dt.split('/'),d=new Date(p[2],p[1]-1,p[0]),now=new Date();now.setHours(0,0,0,0);
-        if(isNaN(d.getTime()) || d > now || d.getFullYear() < 1900 || d.getDate()!=p[0]) errs.push("- Data de Nascimento inválida");
+        if(isNaN(d.getTime()) || d > now || d.getFullYear() < 1900 || d.getDate()!=p[0]) errs.push("Data de Nascimento inválida");
     }
 
-    // Estado Civil e Dependências
     let ec = _ID("x_e2").value;
-    if(!ec) errs.push("- Selecione o Estado Civil");
+    if(!ec) errs.push("Selecione o Estado Civil");
     else {
-        // Se Casado -> Exige Regime
-        if(ec==="Casado(a)" && !_ID("x_r4").value) errs.push("- Informe o Regime de Bens");
-        
-        // Se União Estável -> Exige Documento
-        if(ec==="União Estável" && !_ID("h_u9").value) errs.push("- Informe se possui documento da União");
-        
-        // Se Divorciado/Etc -> Exige Averbação
-        if(["Separado(a)","Divorciado(a)","Viúvo(a)"].includes(ec) && !_ID("h_a7").value) errs.push("- Responda sobre a Averbação na certidão");
+        if(ec==="Casado(a)" && !_ID("x_r4").value) errs.push("Informe o Regime de Bens");
+        if(ec==="União Estável" && !_ID("h_u9").value) errs.push("Possui documento da União?");
+        if(["Separado(a)","Divorciado(a)","Viúvo(a)"].includes(ec) && !_ID("h_a7").value) errs.push("Informe sobre a Averbação");
     }
 
-    // Financeiro
-    let rd = _ID("x_r1").value;
-    if(!rd || rd==="R$ 0,00") errs.push("- Informe a Renda Bruta");
+    if(!_ID("x_r1").value || _ID("x_r1").value==="R$ 0,00") errs.push("Informe a Renda Bruta");
+    if(!_ID("x_f5").value) errs.push("Informe o FGTS");
+    if(!_ID("x_e6").value) errs.push("Informe a Entrada");
+    
+    let en = _ID("x_e6").value, fg = _ID("x_f5").value;
+    if(en && fg && en!=="R$ 0,00" && en===fg) errs.push("Entrada não pode ser igual ao FGTS");
 
-    let fg = _ID("x_f5").value;
-    if(!fg) errs.push("- Informe o saldo de FGTS");
-
-    let en = _ID("x_e6").value;
-    if(!en) errs.push("- Informe o valor da Entrada");
-
-    if(en && fg && en!=="R$ 0,00" && en===fg) errs.push("- Entrada não pode ser igual ao FGTS (Recursos diferentes)");
-
-    // IR
     if(_ID("x_d3").value === "Sim"){
-        let yr = _ID("x_y4").value;
-        let cur = new Date().getFullYear();
-        if(!yr || yr < 2000 || yr > cur) errs.push("- Ano do IR inválido");
+        let yr = _ID("x_y4").value, cur = new Date().getFullYear();
+        if(!yr || yr < 2000 || yr > cur) errs.push("Ano do IR inválido");
     }
 
     return errs;
@@ -301,17 +320,18 @@ function _Chk(){
 function _TrySend(){
     let errs = _GetErrors();
     if(errs.length > 0){
-        let msg = "<strong>Por favor, corrija os itens abaixo:</strong><br><br>" + errs.join("<br>");
+        let msg = "<strong>Itens para corrigir:</strong><br><br>" + errs.map(e => "• " + e).join("<br>");
         _W99(msg);
     } else {
         _EXE();
     }
 }
 
-function _W99(m){ _ID("Z_txt").innerHTML=m; _ID("Z_99").style.display="flex"; }
+/* Modal Genérica */
+function _W99(m){ _ID("Z_tit").innerText="Atenção"; _ID("Z_txt").innerHTML=m; _ID("Z_99").style.display="flex"; }
 function _X99(){ _ID("Z_99").style.display="none"; }
 
-/* --- GERAÇÃO PDF/WHATSAPP --- */
+/* --- GERAÇÃO PDF --- */
 function _EXE(){
     let n=_ID("x_d1").value,r=_ID("x_r1").value;
     let ec=_ID("x_e2").value,ex="",rg=_ID("x_r4").value,av=_ID("h_a7").value,ue=_ID("h_u9").value;
@@ -324,15 +344,12 @@ function _EXE(){
     let d={n:n,c:ec,s:_ID("x_c0").value,r:r,t:_ID("x_t2").value,d:_ID("x_d3").value,a:_ID("x_y4").value||"--",f:_ID("x_f5").value,e:_ID("x_e6").value,tf:_ID("x_g7").value,dv:_ID("x_v8").value,x:ex,h:new Date().toLocaleDateString("pt-BR")};
     _G_PDF(d);_S_WA(d);
 }
-
 function _G_PDF(o){const{jsPDF}=window.jspdf,d=new jsPDF({unit:"mm",format:"a5"});d.setFillColor(255,255,255);d.rect(0,0,148,210,"F");d.setFont("helvetica","bold");d.setFontSize(11);d.setTextColor(0,50,100);d.text("SIMULAÇÃO DE FINANCIAMENTO",74,15,{align:"center"});d.setFontSize(8);d.setTextColor(0);let y=30;const _ln=(l,v)=>{d.text(l,10,y);d.text(v,138,y,{align:"right"});d.line(10,y+2,138,y+2);y+=8};let ed=o.c;if(o.x)ed+=` - ${o.x}`;_ln("Nome/Data:",o.n);_ln("Estado Civil:",ed);_ln("Comprar Sozinho:",o.s);_ln("Renda:",o.r);_ln("Tipo:",o.t);_ln("Declarou IR:",o.d);if(o.d==="Sim")_ln("Ano:",o.a);_ln("FGTS:",o.f);_ln("Entrada:",o.e);_ln("+3 Anos FGTS:",o.tf);_ln("Dívidas:",o.dv);d.save("Simulacao.pdf")}
-
 function _S_WA(o){let e=o.x?` (${o.x})`:"",t=`*DADOS SIMULAÇÃO:*%0aNasc: ${o.n}%0aCivil: ${o.c}${e}%0aSó: ${o.s}%0aRenda: ${o.r} (${o.t})%0aIR: ${o.d} / ${o.a}%0aFGTS: ${o.f}%0aEntrada: ${o.e}%0a3 Anos: ${o.tf}%0aDívidas: ${o.dv}`;window.open(`https://wa.me/5531936180070?text=${t}`,"_blank")}
 
 document.querySelectorAll('input,select').forEach(i=>{
     i.addEventListener('focus',function(){ setTimeout(()=>{this.scrollIntoView({behavior:'smooth',block:'center'})},300) })
 });
-
 setTimeout(_Chk, 100);
 </script>
 </body>
