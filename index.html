@@ -19,18 +19,8 @@ input:focus,select:focus{background:#fff;border-color:var(--c1);box-shadow:0 0 0
 .B_z9{margin-top:30px}
 button{width:100%;padding:18px;border:none;border-radius:12px;font-size:1.05rem;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;justify-content:center;gap:10px;color:#fff;transition:all .3s ease}
 button:active{transform:scale(.98)}
-
-/* ESTILOS DINÂMICOS DO BOTÃO */
-.bt_ok {
-    background: linear-gradient(135deg,#25D366 0%,#128C7E 100%);
-    box-shadow: 0 4px 15px rgba(37,211,102,0.4);
-}
-.bt_err {
-    background: var(--err);
-    box-shadow: 0 4px 15px rgba(229,62,62,0.4);
-    animation: _shake 0.4s ease-in-out;
-}
-
+.bt_ok {background: linear-gradient(135deg,#25D366 0%,#128C7E 100%);box-shadow: 0 4px 15px rgba(37,211,102,0.4);}
+.bt_err {background: var(--err);box-shadow: 0 4px 15px rgba(229,62,62,0.4);animation: _shake 0.4s ease-in-out;}
 .ft_{margin-top:25px;text-align:center;font-size:.85rem;color:#718096;font-weight:500}
 ._dh0{display:none!important}
 ._gb1{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -173,7 +163,7 @@ button:active{transform:scale(.98)}
 <script>
 const _ID=i=>document.getElementById(i);
 
-/* --- MASCARAS --- */
+/* --- MÁSCARAS --- */
 function _H1(v){
     let x=v.value.replace(/\D/g,"");
     if(x.length>2)x=x.replace(/^(\d{2})(\d)/,"$1/$2");
@@ -187,17 +177,34 @@ function _M1(i){
     i.value="R$ "+v;
 }
 
-/* --- LÓGICA DE EXIBIÇÃO DE CAMPOS (Visual apenas, sem bloqueio) --- */
+/* --- REGRAS DE VISIBILIDADE E LÓGICA (RESTAURADAS) --- */
 function _L0(){
     let e=_ID("x_e2").value,r=_ID("d_r3"),a=_ID("d_a5"),u=_ID("d_u8");
-    r.classList.add("_dh0");a.classList.add("_dh0");u.classList.add("_dh0");
     
-    if(e==="Casado(a)") r.classList.remove("_dh0");
-    else if(e==="União Estável") u.classList.remove("_dh0");
+    // 1. Reseta tudo ao mudar (esconde e limpa valores para não sujar validação)
+    r.classList.add("_dh0"); _ID("x_r4").value="";
+    a.classList.add("_dh0"); _ID("h_a7").value="";
+    u.classList.add("_dh0"); _ID("h_u9").value="";
+    document.querySelectorAll('._kb2').forEach(b=>b.classList.remove('_s3'));
+
+    // 2. Aplica as Regras Específicas
+    if(e==="Solteiro(a)"){
+        // Alerta clássico de regra
+        if(!confirm("Tem a certeza absoluta que nunca foi casado(a)?\n\nSe já foi casado e se divorciou, escolha 'Divorciado'.\nSe é viúvo, escolha 'Viúvo'.\n\nSe é realmente Solteiro(a), clique em OK.")) {
+            _ID("x_e2").value=""; // Reseta se o usuário cancelar
+        }
+    } 
+    else if(e==="Casado(a)"){
+        r.classList.remove("_dh0"); // Mostra Regime
+    } 
+    else if(e==="União Estável"){
+        u.classList.remove("_dh0"); // Mostra Documento
+    } 
     else {
+        // Separado, Divorciado, Viúvo
         let f={"Separado(a)":"Separação averbada?","Divorciado(a)":"Divórcio averbado?","Viúvo(a)":"Viuvez averbada?"};
         if(f[e]){
-            a.classList.remove("_dh0");
+            a.classList.remove("_dh0"); // Mostra Averbação
             _ID("l_a6").innerText=f[e];
         }
     }
@@ -205,20 +212,24 @@ function _L0(){
 
 function _L1(){
     let v=_ID("x_r4").value,c=_ID("x_c0");
-    if(v==="Comunhão Parcial"||v==="Comunhão Universal") c.value="Não";
+    // Regra: Comunhão Parcial/Universal obriga cônjuge a participar
+    if(v==="Comunhão Parcial"||v==="Comunhão Universal"){
+        c.value="Não";
+        // Opcional: Avisar o usuário visualmente ou apenas setar
+    }
 }
 
 function _S1(b,v){
     b.parentElement.querySelectorAll('._kb2').forEach(x=>x.classList.remove('_s3'));
     b.classList.add('_s3');
     _ID("h_a7").value=v;
-    _Chk(); // Verifica imediatamente ao clicar
+    _Chk();
 }
 function _S2(b,v){
     b.parentElement.querySelectorAll('._kb2').forEach(x=>x.classList.remove('_s3'));
     b.classList.add('_s3');
     _ID("h_u9").value=v;
-    _Chk(); // Verifica imediatamente ao clicar
+    _Chk();
 }
 
 function _ChkIR(){
@@ -227,11 +238,11 @@ function _ChkIR(){
     else { y.disabled=true; y.value=""; }
 }
 
-/* --- CÉREBRO DA VALIDAÇÃO (Lista todos os erros atuais) --- */
+/* --- VALIDAÇÃO INTELIGENTE --- */
 function _GetErrors(){
     let errs = [];
     
-    // 1. DATA (Length 10 e lógica)
+    // Data
     let dt = _ID("x_d1").value;
     if(dt.length !== 10) errs.push("- Data de Nascimento incompleta");
     else {
@@ -239,29 +250,33 @@ function _GetErrors(){
         if(isNaN(d.getTime()) || d > now || d.getFullYear() < 1900 || d.getDate()!=p[0]) errs.push("- Data de Nascimento inválida");
     }
 
-    // 2. ESTADO CIVIL e sub-campos
+    // Estado Civil e Dependências
     let ec = _ID("x_e2").value;
     if(!ec) errs.push("- Selecione o Estado Civil");
     else {
+        // Se Casado -> Exige Regime
         if(ec==="Casado(a)" && !_ID("x_r4").value) errs.push("- Informe o Regime de Bens");
+        
+        // Se União Estável -> Exige Documento
         if(ec==="União Estável" && !_ID("h_u9").value) errs.push("- Informe se possui documento da União");
-        if(["Separado(a)","Divorciado(a)","Viúvo(a)"].includes(ec) && !_ID("h_a7").value) errs.push("- Responda a pergunta sobre Averbação");
+        
+        // Se Divorciado/Etc -> Exige Averbação
+        if(["Separado(a)","Divorciado(a)","Viúvo(a)"].includes(ec) && !_ID("h_a7").value) errs.push("- Responda sobre a Averbação na certidão");
     }
 
-    // 3. FINANCEIRO
+    // Financeiro
     let rd = _ID("x_r1").value;
     if(!rd || rd==="R$ 0,00") errs.push("- Informe a Renda Bruta");
 
     let fg = _ID("x_f5").value;
-    if(!fg) errs.push("- Informe o saldo de FGTS (ou 0)");
+    if(!fg) errs.push("- Informe o saldo de FGTS");
 
     let en = _ID("x_e6").value;
     if(!en) errs.push("- Informe o valor da Entrada");
 
-    // Validação Cruzada: Entrada vs FGTS
     if(en && fg && en!=="R$ 0,00" && en===fg) errs.push("- Entrada não pode ser igual ao FGTS (Recursos diferentes)");
 
-    // 4. IMPOSTO DE RENDA
+    // IR
     if(_ID("x_d3").value === "Sim"){
         let yr = _ID("x_y4").value;
         let cur = new Date().getFullYear();
@@ -271,41 +286,32 @@ function _GetErrors(){
     return errs;
 }
 
-/* --- ATUALIZADOR DO BOTÃO (Roda em tempo real) --- */
 function _Chk(){
     let errs = _GetErrors();
     let btn = _ID("bt_send");
-    
-    // Se não houver nenhum erro (array vazio)
     if(errs.length === 0){
-        btn.className = "bt_ok"; // Fica Verde
+        btn.className = "bt_ok";
         btn.innerText = "Enviar Análise";
     } else {
-        // Se houver qualquer erro
-        btn.className = "bt_err"; // Fica Vermelho
+        btn.className = "bt_err";
         btn.innerText = "Corrija as Informações";
     }
 }
 
-/* --- AÇÃO DO BOTÃO --- */
 function _TrySend(){
     let errs = _GetErrors();
-    
     if(errs.length > 0){
-        // Se clicou no vermelho, mostra o que falta
         let msg = "<strong>Por favor, corrija os itens abaixo:</strong><br><br>" + errs.join("<br>");
         _W99(msg);
     } else {
-        // Se está verde, envia
         _EXE();
     }
 }
 
-/* --- MODAIS E UTILITÁRIOS --- */
 function _W99(m){ _ID("Z_txt").innerHTML=m; _ID("Z_99").style.display="flex"; }
 function _X99(){ _ID("Z_99").style.display="none"; }
 
-/* --- GERAÇÃO DE PDF E WHATSAPP --- */
+/* --- GERAÇÃO PDF/WHATSAPP --- */
 function _EXE(){
     let n=_ID("x_d1").value,r=_ID("x_r1").value;
     let ec=_ID("x_e2").value,ex="",rg=_ID("x_r4").value,av=_ID("h_a7").value,ue=_ID("h_u9").value;
@@ -323,14 +329,11 @@ function _G_PDF(o){const{jsPDF}=window.jspdf,d=new jsPDF({unit:"mm",format:"a5"}
 
 function _S_WA(o){let e=o.x?` (${o.x})`:"",t=`*DADOS SIMULAÇÃO:*%0aNasc: ${o.n}%0aCivil: ${o.c}${e}%0aSó: ${o.s}%0aRenda: ${o.r} (${o.t})%0aIR: ${o.d} / ${o.a}%0aFGTS: ${o.f}%0aEntrada: ${o.e}%0a3 Anos: ${o.tf}%0aDívidas: ${o.dv}`;window.open(`https://wa.me/5531936180070?text=${t}`,"_blank")}
 
-/* Scroll suave ao focar */
 document.querySelectorAll('input,select').forEach(i=>{
     i.addEventListener('focus',function(){ setTimeout(()=>{this.scrollIntoView({behavior:'smooth',block:'center'})},300) })
 });
 
-/* Executa verificação inicial ao carregar (para deixar botão vermelho) */
 setTimeout(_Chk, 100);
-
 </script>
 </body>
 </html>
