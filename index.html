@@ -17,12 +17,12 @@
         
         <div class="F_x1">
             <label>Data de Nascimento</label>
-            <input type="tel" id="x_d1" placeholder="DD/MM/AAAA" maxlength="10" oninput="_H1(this)" onblur="_H2(this)" required>
+            <input type="tel" id="x_d1" placeholder="DD/MM/AAAA" maxlength="10" oninput="_RST('x_d1');_H1(this)" onblur="_H2(this)" required>
         </div>
 
         <div class="F_x1">
             <label>Estado Civil</label>
-            <select id="x_e2" onchange="_L0()" disabled>
+            <select id="x_e2" onchange="_RST('x_e2');_L0()" disabled>
                 <option value="" disabled selected>Selecione...</option>
                 <option value="Solteiro(a)">Solteiro(a)</option>
                 <option value="Casado(a)">Casado(a)</option>
@@ -35,7 +35,7 @@
 
         <div class="F_x1 _dh0" id="d_r3">
             <label>Regime de Comunhão de Bens</label>
-            <select id="x_r4" onchange="_L1()" disabled>
+            <select id="x_r4" onchange="_RST('x_r4');_L1()" disabled>
                 <option value="" disabled selected>Selecione...</option>
                 <option value="Separação Total">Separação Total</option>
                 <option value="Comunhão Parcial">Comunhão Parcial</option>
@@ -63,7 +63,7 @@
 
         <div class="F_x1">
             <label>Pretende comprar sozinho(a)?</label>
-            <select id="x_c0" onchange="_Ok('x_r1')" disabled>
+            <select id="x_c0" onchange="_RST('x_c0');_Ok('x_r1')" disabled>
                 <option value="Sim">Sim</option>
                 <option value="Não">Não</option>
             </select>
@@ -71,12 +71,12 @@
 
         <div class="F_x1">
             <label>Renda Bruta Mensal</label>
-            <input type="text" id="x_r1" placeholder="R$ 0,00" inputmode="numeric" onkeyup="_M1(this)" onblur="_V_Req(this, 'x_t2')" disabled required>
+            <input type="text" id="x_r1" placeholder="R$ 0,00" inputmode="numeric" oninput="_RST('x_r1')" onkeyup="_M1(this)" onblur="_V_Req(this, 'x_t2')" disabled required>
         </div>
 
         <div class="F_x1">
             <label>Tipo de Renda</label>
-            <select id="x_t2" onchange="_Ok('x_d3')" disabled>
+            <select id="x_t2" onchange="_RST('x_t2');_Ok('x_d3')" disabled>
                 <option value="Formal CLT">Formal CLT</option>
                 <option value="Informal / Autônomo">Informal / Autônomo</option>
                 <option value="Pró Labore">Pró Labore</option>
@@ -86,7 +86,7 @@
 
         <div class="F_x1">
             <label>Declarou Imposto de Renda?</label>
-            <select id="x_d3" onchange="_ChkIR()" disabled>
+            <select id="x_d3" onchange="_RST('x_d3');_ChkIR()" disabled>
                 <option value="Sim">Sim</option>
                 <option value="Não">Não</option>
             </select>
@@ -94,22 +94,22 @@
 
         <div class="F_x1">
             <label>Último ano da declaração</label>
-            <input type="number" id="x_y4" placeholder="Ex: 2024" inputmode="numeric" oninput="_ChkYr(this)" disabled>
+            <input type="number" id="x_y4" placeholder="Ex: 2024" inputmode="numeric" oninput="_RST('x_y4');_ChkYr(this)" disabled>
         </div>
 
         <div class="F_x1">
             <label>Saldo de FGTS</label>
-            <input type="text" id="x_f5" placeholder="R$ 0,00" inputmode="numeric" onkeyup="_M1(this)" onblur="_V_Req(this, 'x_e6')" disabled required>
+            <input type="text" id="x_f5" placeholder="R$ 0,00" inputmode="numeric" oninput="_RST('x_f5')" onkeyup="_M1(this)" onblur="_V_Req(this, 'x_e6')" disabled required>
         </div>
 
         <div class="F_x1">
             <label>Valor da Entrada (Recurso Próprio)</label>
-            <input type="text" id="x_e6" placeholder="R$ 0,00" inputmode="numeric" onkeyup="_M1(this)" onblur="_L2()" disabled required>
+            <input type="text" id="x_e6" placeholder="R$ 0,00" inputmode="numeric" oninput="_RST('x_e6')" onkeyup="_M1(this)" onblur="_L2()" disabled required>
         </div>
 
         <div class="F_x1">
             <label>+3 anos de FGTS (Somando empresas)?</label>
-            <select id="x_g7" onfocus="_Ck_G7(this)" onchange="_Ok('x_v8')" disabled>
+            <select id="x_g7" onfocus="_Ck_G7(this)" onchange="_RST('x_g7');_Ok('x_v8')" disabled>
                 <option value="Não">Não</option>
                 <option value="Sim">Sim</option>
             </select>
@@ -133,59 +133,64 @@
 
 <script>
 const _ID=i=>document.getElementById(i);
-// Libera próximo
 const _Ok=id=>{ let el=_ID(id); if(el) el.disabled=!1; }
-// Bloqueia próximo (para resetar fluxo)
 const _Lk=id=>{ let el=_ID(id); if(el) { el.disabled=!0; el.value=""; } }
 
-/* DATA BLINDADA */
-function _H1(v){
-    // 1. Bloqueia o próximo campo IMEDIATAMENTE a qualquer toque
-    // Isso previne que o usuário digite certo, desbloqueie, volte e digite errado.
-    _Lk('x_e2');
+/* ORDEM HIERÁRQUICA DOS CAMPOS */
+const _FLDS = ['x_d1', 'x_e2', 'x_r4', 'x_c0', 'x_r1', 'x_t2', 'x_d3', 'x_y4', 'x_f5', 'x_e6', 'x_g7', 'x_v8'];
 
-    // 2. Aplica Máscara
+/* FUNÇÃO MESTRE DE RESET (Cascata) */
+function _RST(crrId){
+    let idx = _FLDS.indexOf(crrId);
+    if(idx === -1) return; // Segurança
+
+    // 1. Loop para apagar e desabilitar tudo que vem DEPOIS do campo atual
+    for(let i = idx + 1; i < _FLDS.length; i++){
+        let el = _ID(_FLDS[i]);
+        if(el){
+            el.value = "";
+            el.disabled = true;
+            if(el.tagName === 'SELECT') el.selectedIndex = 0; // Reseta Selects para o topo
+        }
+    }
+
+    // 2. Limpezas Específicas de Interface (Divs e Botões Ocultos)
+    // Se resetar algo antes da pergunta de Compra Sozinho, reseta os sub-campos de Estado Civil
+    if(idx < _FLDS.indexOf('x_c0')) {
+         _ID("d_r3").classList.add("_dh0");
+         _ID("d_a5").classList.add("_dh0");
+         _ID("d_u8").classList.add("_dh0");
+         document.querySelectorAll('._kb2').forEach(b=>b.classList.remove('_s3'));
+         _ID("h_a7").value=""; _ID("h_u9").value="";
+         // Desabilita botões internos também
+         document.querySelectorAll('._kb2').forEach(b=>b.disabled=true);
+    }
+
+    // 3. Sempre bloqueia o botão de envio se houve alteração
+    _ID("bt_send").disabled = true;
+}
+
+/* --- FUNÇÕES ESPECÍFICAS (Mantidas e Integradas) --- */
+
+/* Data: Usa _RST no input, então se alterar, limpa tudo */
+function _H1(v){
     let x=v.value.replace(/\D/g,"");
     if(x.length>2)x=x.replace(/^(\d{2})(\d)/,"$1/$2");
     if(x.length>5)x=x.replace(/^(\d{2})\/(\d{2})(\d)/,"$1/$2/$3");
     v.value=x;
 
-    // 3. Validação Automática ao completar 10 dígitos
     if(v.value.length===10){
-        let p=v.value.split('/');
-        let d=new Date(p[2],p[1]-1,p[0]);
-        let now=new Date(); now.setHours(0,0,0,0);
-        
-        let isValid = (
-            !isNaN(d.getTime()) && 
-            d <= now && 
-            d.getFullYear() >= 1900 && 
-            d.getDate() == p[0] && 
-            d.getMonth() == p[1]-1
-        );
-
+        let p=v.value.split('/'),d=new Date(p[2],p[1]-1,p[0]),now=new Date();now.setHours(0,0,0,0);
+        let isValid = (!isNaN(d.getTime()) && d <= now && d.getFullYear() >= 1900 && d.getDate() == p[0] && d.getMonth() == p[1]-1);
         if(isValid){
-            _Ok('x_e2'); // Destrava se for perfeito
+            _Ok('x_e2');
         } else {
-            // ERRO IMEDIATO: Limpa o campo e avisa.
-            v.value="";
-            _W99("Data inválida! Verifique dia, mês e ano.");
-            // O próximo continua travado pelo comando _Lk lá no topo da função
+            v.value=""; _W99("Data inválida! Verifique dia, mês e ano.");
+            // O próximo continua travado pois _RST já rodou no input
         }
     }
 }
-
-function _H2(v){
-    // Validação extra no blur: Se sair sem terminar (ex: digitou "10/10/20")
-    if(v.value.length > 0 && v.value.length < 10) { 
-        _W99("Data incompleta."); 
-        v.value=""; 
-        _Lk('x_e2'); // Garante bloqueio
-        setTimeout(()=>v.focus(),200); 
-    }
-}
-
-/* Resto das funções mantidas e ajustadas para fluxo sequencial */
+function _H2(v){ if(v.value.length>0 && v.value.length<10) { _W99("Data incompleta."); v.value=""; _Lk('x_e2'); setTimeout(()=>v.focus(),200); } }
 
 function _L0(){
     let e=_ID("x_e2").value,r=_ID("d_r3"),a=_ID("d_a5"),u=_ID("d_u8");
@@ -193,19 +198,14 @@ function _L0(){
     _ID("x_r4").value="";
     
     if(e==="Solteiro(a)"){
-        if(confirm("Tem certeza que nunca foi casado? Se sim, clique OK.")){
-            _Ok('x_c0'); 
-        } else {
-            _ID("x_e2").value=""; 
-        }
+        if(confirm("Tem certeza que nunca foi casado?")){ _Ok('x_c0'); } else { _ID("x_e2").value=""; }
     } else if(e==="Casado(a)"){
-        r.classList.remove("_dh0");
-        _Ok('x_r4');
+        r.classList.remove("_dh0"); _Ok('x_r4');
     } else if(e==="União Estável"){
         u.classList.remove("_dh0");
         u.querySelectorAll('button').forEach(b=>b.disabled=!1);
     } else { 
-        let f={"Separado(a)":"Está averbada a separação na Certidão de Casamento?","Divorciado(a)":"Está averbado o divórcio na Certidão de Casamento?","Viúvo(a)":"Está averbado que é viúvo(a) na Certidão de Casamento?"};
+        let f={"Separado(a)":"Separação averbada?","Divorciado(a)":"Divórcio averbado?","Viúvo(a)":"Viuvez averbada?"};
         if(f[e]){
             a.classList.remove("_dh0");
             _ID("l_a6").innerText=f[e];
@@ -216,29 +216,31 @@ function _L0(){
 
 function _L1(){
     let v=_ID("x_r4").value,c=_ID("x_c0");
-    if(v==="Comunhão Parcial"||v==="Comunhão Universal"){
-        c.value="Não"; 
-    }
+    if(v==="Comunhão Parcial"||v==="Comunhão Universal"){ c.value="Não"; }
     _Ok('x_c0');
 }
 
+/* Botões Extras também chamam _RST baseado no campo pai lógico (Estado Civil = x_e2) */
 function _S1(b,v){
+    // Reset manual pois botões não estão na lista _FLDS principal, mas afetam fluxo pós-civil
+    _RST('x_e2'); 
     b.parentElement.querySelectorAll('._kb2').forEach(x=>x.classList.remove('_s3'));
     b.classList.add('_s3');
     _ID("h_a7").value=v;
     _Ok('x_c0');
 }
 function _S2(b,v){
+    _RST('x_e2');
     b.parentElement.querySelectorAll('._kb2').forEach(x=>x.classList.remove('_s3'));
     b.classList.add('_s3');
     _ID("h_u9").value=v;
     _Ok('x_c0');
 }
 
+/* Validação Texto */
 function _V_Req(i, nextId){
     if(i.value===""||i.value==="R$ 0,00"){
-        _W99("Campo obrigatório.");
-        setTimeout(()=>i.focus(),200);
+        _W99("Campo obrigatório."); setTimeout(()=>i.focus(),200);
     } else {
         _Ok(nextId);
     }
@@ -246,12 +248,7 @@ function _V_Req(i, nextId){
 
 function _ChkIR(){
     let v=_ID("x_d3").value;
-    if(v==="Sim"){
-        _Ok('x_y4');
-    } else {
-        _Lk("x_y4"); _ID("x_y4").disabled=!0;
-        _Ok('x_f5');
-    }
+    if(v==="Sim"){ _Ok('x_y4'); } else { _Lk("x_y4"); _ID("x_y4").disabled=!0; _Ok('x_f5'); }
 }
 
 function _ChkYr(i){
@@ -265,9 +262,8 @@ function _ChkYr(i){
 function _L2(){
     let e=_ID("x_e6").value,f=_ID("x_f5").value;
     if(e!==""&&f!==""&&e===f&&e!=="R$ 0,00"){
-        _W99("O valor da entrada não pode ser igual ao FGTS.");
-        _ID("x_e6").value="";
-        setTimeout(()=>_ID("x_e6").focus(),200); 
+        _W99("Entrada não pode ser igual ao FGTS.");
+        _ID("x_e6").value=""; setTimeout(()=>_ID("x_e6").focus(),200); 
     } else if(e!=="R$ 0,00" && e!=="") {
         _Ok('x_g7');
     }
@@ -275,12 +271,10 @@ function _L2(){
 
 function _Ck_G7(i){
     let e=_ID("x_e6").value,f=_ID("x_f5").value;
-    if(e!=="" && f!=="" && e===f && e!=="R$ 0,00"){
-        i.blur();
-        _L2(); 
-    }
+    if(e!=="" && f!=="" && e===f && e!=="R$ 0,00"){ i.blur(); _L2(); }
 }
 
+/* Utils */
 function _M1(i){
     let v=i.value.replace(/\D/g,'');
     v=(v/100).toFixed(2)+'';
@@ -290,6 +284,7 @@ function _M1(i){
 function _W99(m){ _ID("Z_txt").innerHTML=m; _ID("Z_99").style.display="flex"; }
 function _X99(){ _ID("Z_99").style.display="none"; }
 
+/* Envio */
 function _EXE(){
     let n=_ID("x_d1").value,r=_ID("x_r1").value;
     if(!n||!r||r==="R$ 0,00"){_W99("Dados incompletos.");return}
