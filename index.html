@@ -8,33 +8,8 @@
     <style>
         :root { --p: #0056b3; --w: #25D366; --b: #f4f4f9; --wh: #ffffff; --t: #333333; --e: #d9534f; --g: #6c757d; }
         * { box-sizing: border-box; outline: 0; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            font-family: -apple-system, system-ui, sans-serif; 
-            background-color: var(--b); 
-            margin: 0; 
-            padding: 10px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: flex-start; 
-            min-height: 100vh; 
-            color: var(--t); 
-        }
-
-        .c { 
-            background: var(--wh); 
-            padding: 20px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,.08); 
-            width: 100%; 
-            max-width: 450px; 
-            min-height: 420px; 
-            display: flex; 
-            flex-direction: column; 
-            position: relative; 
-            margin-top: 10px; 
-        }
-
+        body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--b); margin: 0; padding: 10px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; color: var(--t); }
+        .c { background: var(--wh); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,.08); width: 100%; max-width: 450px; min-height: 420px; display: flex; flex-direction: column; position: relative; margin-top: 10px; }
         h2 { text-align: center; margin: 0 0 20px 0; font-size: 1.1rem; color: #222; text-transform: uppercase; border-bottom: 2px solid #eee; padding-bottom: 15px; }
         .step { display: none; flex-direction: column; animation: fadeIn 0.3s ease; }
         .step.active { display: flex; }
@@ -43,6 +18,7 @@
         label { display: block; margin-bottom: 8px; font-weight: 600; font-size: .95rem; color: #444; }
         input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; background: #fff; height: 50px; }
         .error-msg { color: var(--e); font-size: 0.85rem; margin-top: 5px; display: none; line-height: 1.3; }
+        .alert-box { background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; border-left: 5px solid #ffeeba; margin-bottom: 15px; font-size: 0.9rem; }
         .btn-group { display: flex; gap: 10px; margin-top: 10px; }
         .btn-next, .btn-send { flex: 2; padding: 16px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; background-color: var(--p); color: #fff; }
         .btn-prev { flex: 1; padding: 16px; border: 1px solid #ccc; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; background-color: #eee; color: #555; text-transform: uppercase; }
@@ -50,13 +26,12 @@
         .footer-info { margin-top: auto; text-align: center; font-size: 0.85rem; color: #777; padding-top: 20px; }
         .page-indicator { font-size: 0.8rem; color: #aaa; margin-top: 15px; text-align: center; }
         .sub-info { font-size: 0.85rem; color: #555; background: #f9f9f9; padding: 10px; border-radius: 8px; border-left: 4px solid var(--p); margin-bottom: 15px; }
-        .legal-notice { font-size: 0.7rem; color: #999; margin-top: 10px; font-style: italic; }
     </style>
 </head>
 <body oncontextmenu="return false">
 
 <div class="c">
-    <h2>Simulação de Financiamento</h2>
+    <h2 id="main-title">Simulação de Financiamento</h2>
 
     <form id="simuForm">
         <div class="step active" id="step1">
@@ -65,7 +40,7 @@
                 <input type="tel" id="nasc" placeholder="DD/MM/AAAA" maxlength="10" oninput="_mDt(this)" required>
                 <div id="err-nasc" class="error-msg">Data inválida ou futura.</div>
             </div>
-            <div class="page-indicator">Página 1 de 7</div>
+            <div class="page-indicator">Página 1 de 8</div>
         </div>
 
         <div class="step" id="step2">
@@ -86,7 +61,16 @@
                 <button type="button" class="btn-prev" onclick="prevStep(2)">Voltar</button>
                 <button type="button" class="btn-next" onclick="nextStep(2)">Continuar</button>
             </div>
-            <div class="page-indicator">Página 2 de 7</div>
+            <div class="page-indicator">Página 2 de 8</div>
+        </div>
+
+        <div class="step" id="stepExtra">
+            <div id="extra-content"></div>
+            <div class="btn-group">
+                <button type="button" class="btn-prev" onclick="prevStep('Extra')">Voltar</button>
+                <button type="button" class="btn-next" onclick="nextStep('Extra')">Continuar</button>
+            </div>
+            <div class="page-indicator">Página 3 de 8</div>
         </div>
 
         <div class="step" id="step3">
@@ -104,7 +88,7 @@
                 <button type="button" class="btn-prev" onclick="prevStep(3)">Voltar</button>
                 <button type="button" class="btn-next" onclick="nextStep(3)">Continuar</button>
             </div>
-            <div class="page-indicator">Página 3 de 7</div>
+            <div class="page-indicator">Página 4 de 8</div>
         </div>
 
         <div class="step" id="step4">
@@ -124,7 +108,7 @@
                 <button type="button" class="btn-prev" onclick="prevStep(4)">Voltar</button>
                 <button type="button" class="btn-next" onclick="nextStep(4)">Continuar</button>
             </div>
-            <div class="page-indicator">Página 4 de 7</div>
+            <div class="page-indicator">Página 5 de 8</div>
         </div>
 
         <div class="step" id="step5">
@@ -137,7 +121,7 @@
                 <button type="button" class="btn-prev" onclick="prevStep(5)">Voltar</button>
                 <button type="button" class="btn-next" onclick="nextStep(5)">Continuar</button>
             </div>
-            <div class="page-indicator">Página 5 de 7</div>
+            <div class="page-indicator">Página 6 de 8</div>
         </div>
 
         <div class="step" id="step6">
@@ -154,7 +138,7 @@
                 <button type="button" class="btn-prev" onclick="prevStep(6)">Voltar</button>
                 <button type="button" class="btn-next" onclick="nextStep(6)">Continuar</button>
             </div>
-            <div class="page-indicator">Página 6 de 7</div>
+            <div class="page-indicator">Página 7 de 8</div>
         </div>
 
         <div class="step" id="step7">
@@ -164,23 +148,15 @@
                 <strong>Consultor: Roger Oliveira</strong><br>
                 Creci-MG 45.117 – WhatsApp (31) 93618-0070<br>
                 <span style="color:var(--w); font-weight: bold;">✔ Canal de Envio Seguro</span>
-                <div class="legal-notice">Este documento possui dados para realização de uma simulação preliminar.</div>
             </div>
-            <div class="page-indicator">Página 7 de 7</div>
+            <div class="page-indicator">Página 8 de 8</div>
         </div>
     </form>
 </div>
 
 <script>
-// --- PROTEÇÃO ---
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('keydown', function(e) {
-    if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) {
-        e.preventDefault(); return false;
-    }
-});
-
 const _g = (id) => document.getElementById(id);
+let buyingAlone = "Não";
 
 // --- MÁSCARAS ---
 function _mDt(v) {
@@ -198,7 +174,6 @@ function _fM(i) {
     var v = i.value.replace(/\D/g, '');
     v = (v / 100).toFixed(2).replace(".", ",").replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
     i.value = "R$ " + v;
-    if (i.id === 'ent') _g('err-entrada').style.display = 'none';
 }
 
 function validarData(data) {
@@ -208,37 +183,115 @@ function validarData(data) {
     return dt.getDate() === d && dt.getMonth() === m && dt < new Date() && a > 1920;
 }
 
+// --- LÓGICA DE ESTADO CIVIL ---
+function handleECChange() {
+    const ec = _g('ec').value;
+    const container = _g('dynamic-ec');
+    
+    if(ec === "Solteiro(a)") {
+        container.innerHTML = `<div class='sub-info'><label>Comprar sozinho?</label><select id='cs'><option value='Sim'>Sim</option><option value='Não'>Não</option></select></div>`;
+    } else if(ec === "Casado(a)") {
+        container.innerHTML = `<div class='sub-info'>Possui cópia da Certidão de Casamento?<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select></div>`;
+    } else if(ec !== "") {
+        container.innerHTML = `<div class='sub-info'>${ec.replace("(a)","")} averbada na Certidão?<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select></div>`;
+    } else {
+        container.innerHTML = "";
+    }
+}
+
+function updateExtraStep() {
+    const ec = _g('ec').value;
+    const sub = _g('sub_q') ? _g('sub_q').value : null;
+    const content = _g('extra-content');
+
+    if (ec === "Casado(a)") {
+        content.innerHTML = `
+            <div class="f-g">
+                <label>Qual é o regime de comunhão de bens?</label>
+                <select id="regime" onchange="handleRegimeChange()">
+                    <option value="">Selecione...</option>
+                    <option value="União Parcial">Comunhão Parcial</option>
+                    <option value="União Total">Comunhão Universal (Total)</option>
+                    <option value="Separação Total">Separação Total de Bens</option>
+                </select>
+            </div>
+            <div id="regime-extra"></div>`;
+    } else if (["Separado(a)", "Divorciado(a)", "Viúvo(a)", "União Estável"].includes(ec)) {
+        if (sub === "Não") {
+            content.innerHTML = `
+                <div class="alert-box">
+                    <strong>Atenção:</strong> É necessário regularizar a averbação do seu estado civil na certidão para prosseguir com o financiamento individual. 
+                    <br><br>Por enquanto, a simulação considerará a compra em conjunto.
+                </div>
+                <p>Clique em continuar para prosseguir com a simulação.</p>`;
+            buyingAlone = "Não";
+        } else {
+            content.innerHTML = `
+                <div class="f-g">
+                    <label>Deseja comprar sozinho(a)?</label>
+                    <select id="cs_extra"><option value="Sim">Sim</option><option value="Não">Não</option></select>
+                </div>`;
+        }
+    }
+}
+
+function handleRegimeChange() {
+    const r = _g('regime').value;
+    const extra = _g('regime-extra');
+    if (r === "Separação Total") {
+        extra.innerHTML = `<div class="f-g"><label>Deseja comprar sozinho(a)?</label><select id="cs_regime"><option value="Sim">Sim</option><option value="Não">Não</option></select></div>`;
+    } else {
+        extra.innerHTML = `<div class="sub-info">Neste regime, a compra deve ser realizada pelo casal.</div>`;
+    }
+}
+
 // --- NAVEGAÇÃO ---
 function nextStep(c) {
-    if (c === 2 && _g('ec').value === "") return alert("Selecione o estado civil.");
-    if (c === 4 && _g('dir').value === "Sim") {
-        const ano = parseInt(_g('air').value);
-        const agora = new Date();
-        if (ano > agora.getFullYear()) { _showErrIR("O ano não pode ser no futuro."); return; }
-        _g('err-ir').style.display = 'none';
+    if (c === 2) {
+        if (_g('ec').value === "") return alert("Selecione o estado civil.");
+        if (_g('ec').value === "Solteiro(a)") {
+            buyingAlone = _g('cs').value;
+            _g('step2').classList.remove('active');
+            _g('step3').classList.add('active');
+            return;
+        }
+        updateExtraStep();
+        _g('step2').classList.remove('active');
+        _g('stepExtra').classList.add('active');
+    } else if (c === 'Extra') {
+        if (_g('regime') && _g('regime').value === "") return alert("Selecione o regime de bens.");
+        
+        // Captura decisão final de compra
+        if (_g('cs_regime')) buyingAlone = _g('cs_regime').value;
+        else if (_g('cs_extra')) buyingAlone = _g('cs_extra').value;
+        else if (_g('regime') && (_g('regime').value.includes("União"))) buyingAlone = "Não";
+
+        _g('stepExtra').classList.remove('active');
+        _g('step3').classList.add('active');
+    } else {
+        _g(`step${c}`).classList.remove('active');
+        _g(`step${c + 1}`).classList.add('active');
     }
-    if (c === 6 && _g('ent').value !== "R$ 0,00" && _g('ent').value === _g('fgts').value) {
-        _g('err-entrada').style.display = 'block'; return;
-    }
-    _g(`step${c}`).classList.remove('active');
-    _g(`step${c + 1}`).classList.add('active');
     window.scrollTo(0,0);
 }
 
-function _showErrIR(msg) { const e = _g('err-ir'); e.innerText = msg; e.style.display = 'block'; }
-function prevStep(c) { _g(`step${c}`).classList.remove('active'); _g(`step${c - 1}`).classList.add('active'); window.scrollTo(0,0); }
-
-function handleECChange() {
-    const ec = _g('ec').value;
-    const q = {
-        "Solteiro(a)": "Confirma que não possui divórcio anterior? <br><br> <label>Comprar sozinho?</label><select id='cs'><option value='Sim'>Sim</option><option value='Não'>Não</option></select>",
-        "Casado(a)": "Possui cópia da Certidão de Casamento?<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select>",
-        "Separado(a)": "Separação averbada na Certidão?<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select>",
-        "Divorciado(a)": "Divórcio averbada na Certidão?<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select>",
-        "Viúvo(a)": "Viuvez averbada na Certidão?<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select>",
-        "União Estável": "Possui documento da união?<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select>"
-    };
-    _g('dynamic-ec').innerHTML = q[ec] ? `<div class='sub-info'>${q[ec]}</div>` : "";
+function prevStep(c) {
+    if (c === 3) {
+        if (_g('ec').value === "Solteiro(a)") {
+            _g('step3').classList.remove('active');
+            _g('step2').classList.add('active');
+        } else {
+            _g('step3').classList.remove('active');
+            _g('stepExtra').classList.add('active');
+        }
+    } else if (c === 'Extra') {
+        _g('stepExtra').classList.remove('active');
+        _g('step2').classList.add('active');
+    } else {
+        _g(`step${c}`).classList.remove('active');
+        _g(`step${c - 1}`).classList.add('active');
+    }
+    window.scrollTo(0,0);
 }
 
 function handleIRChange() { _g('ir-ano-cont').style.display = (_g('dir').value === "Sim") ? "block" : "none"; }
@@ -246,71 +299,33 @@ function handleIRChange() { _g('ir-ano-cont').style.display = (_g('dir').value =
 // --- PDF E WHATSAPP ---
 function _zRun() {
     const d = {
-        n: _g("nasc").value, c: _g("ec").value,
-        sub: _g("sub_q") ? _g("sub_q").value : (_g("cs") ? "Sozinho: " + _g("cs").value : "--"),
+        n: _g("nasc").value, 
+        c: _g("ec").value,
+        reg: _g("regime") ? _g("regime").value : "--",
+        sub: _g("sub_q") ? _g("sub_q").value : "--",
+        sozinho: buyingAlone,
         r: _g("rnd").value, t: _g("tr").value, ir: _g("dir").value, a: _g("air").value || "--",
         f: _g("fgts").value, e: _g("ent").value, tf: _g("tfg").value, dv: _g("div").value, h: new Date().toLocaleDateString("pt-BR")
     };
-    _pG(d); 
-    _wS(d);
-}
-
-function _pG(o) {
+    
+    // PDF
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: "mm", format: "a4" });
-    doc.setFillColor(0, 86, 179); doc.rect(0, 0, 210, 45, 'F');
-    doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(22);
-    doc.text("SIMULAÇÃO DE FINANCIAMENTO", 105, 22, { align: "center" });
-    doc.setFontSize(10); doc.text(`Gerado em: ${o.h}`, 105, 32, { align: "center" });
-    let y = 60;
-    const drawS = (t) => {
-        doc.setFillColor(245, 245, 245); doc.rect(10, y-6, 190, 10, 'F');
-        doc.setTextColor(0, 86, 179); doc.setFont("helvetica", "bold"); doc.text(t, 15, y+1); y += 15;
-    };
-    const addD = (l, v) => {
-        doc.setTextColor(80); doc.setFont("helvetica", "bold"); doc.text(l, 15, y);
-        doc.setTextColor(0); doc.setFont("helvetica", "normal"); doc.text(v, 90, y); y += 9;
-    };
-    drawS("DADOS DO CLIENTE");
-    addD("Nascimento:", o.n); addD("Estado Civil:", o.c); addD("Adicional:", o.sub);
-    y += 5; drawS("FINANCEIRO");
-    addD("Renda:", o.r); addD("Tipo:", o.t); addD("IRPF:", o.ir + (o.ir==="Sim" ? " - " + o.a : ""));
-    y += 5; drawS("RECURSOS");
-    addD("FGTS:", o.f); addD("+3 Anos FGTS:", o.tf); addD("Entrada (Ato):", o.e); addD("Dívidas:", o.dv);
-    doc.setFillColor(37, 211, 102); doc.rect(0, 250, 210, 47, 'F');
-    doc.setTextColor(255); doc.setFontSize(14); doc.text("CONSULTOR: ROGER OLIVEIRA", 105, 263, { align: "center" });
-    doc.setFontSize(11); doc.text("Creci-MG 45.117 | (31) 93618-0070", 105, 271, { align: "center" });
-    doc.setFontSize(8); doc.setFont("helvetica", "italic");
-    doc.text("Este documento possui dados para realização de uma simulação preliminar,", 105, 280, { align: "center" });
-    doc.text("análise sujeita a aprovação bancária.", 105, 285, { align: "center" });
-    doc.save(`Simulacao_Roger.pdf`);
-}
+    const doc = new jsPDF();
+    doc.setFont("helvetica", "bold"); doc.text("RESUMO DA SIMULAÇÃO", 10, 10);
+    doc.setFont("helvetica", "normal");
+    let y = 20;
+    Object.entries(d).forEach(([k, v]) => { doc.text(`${k.toUpperCase()}: ${v}`, 10, y); y += 10; });
+    doc.save(`Simulacao_${d.n.replace(/\//g,'-')}.pdf`);
 
-function _wS(o) {
+    // WHATSAPP
     const ph = "5531936180070";
     const msg = encodeURIComponent(
-        `*NOVA SIMULAÇÃO DE FINANCIAMENTO*\n\n` +
-        `*👤 Nascimento:* ${o.n}\n*💍 Estado Civil:* ${o.c}\n*📑 Adicional:* ${o.sub}\n\n` +
-        `*💰 Renda:* ${o.r} (${o.t})\n*📁 IR:* ${o.ir} (Ano: ${o.a})\n\n` +
-        `*🏦 FGTS:* ${o.f} (+3 anos: ${o.tf})\n*💵 Entrada:* ${o.e}\n*⚠️ Dívidas:* ${o.dv}\n\n` +
-        `_Este documento possui dados para realização de uma simulação preliminar, sujeita a análise bancária._`
+        `*NOVA SIMULAÇÃO*\n\n` +
+        `*Nascimento:* ${d.n}\n*Estado Civil:* ${d.c}\n*Regime/Averb:* ${d.reg} / ${d.sub}\n` +
+        `*Compra Sozinho:* ${d.sozinho}\n*Renda:* ${d.r}\n*FGTS:* ${d.f}\n*Entrada:* ${d.e}\n*Dívidas:* ${d.dv}`
     );
-
-    // IDENTIFICAÇÃO DE DISPOSITIVO
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    // URL DINÂMICA: wa.me abre o APP no mobile; web.whatsapp abre o navegador no PC
-    const finalUrl = isMobile 
-        ? `https://wa.me/${ph}?text=${msg}` 
-        : `https://web.whatsapp.com/send?phone=${ph}&text=${msg}`;
-
-    // Tenta abrir em nova aba
-    const win = window.open(finalUrl, "_blank");
-
-    // Fallback caso o pop-up seja bloqueado ou falhe
-    if (!win || win.closed || typeof win.closed === 'undefined') { 
-        window.location.href = finalUrl; 
-    }
+    window.open(isMobile ? `https://wa.me/${ph}?text=${msg}` : `https://web.whatsapp.com/send?phone=${ph}&text=${msg}`, "_blank");
 }
 </script>
 </body>
