@@ -1,68 +1,316 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Simulação Imobiliária</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-:root{--p:#0056b3;--w:#25D366;--b:#f4f4f9;--wh:#ffffff;--t:#333333}*{box-sizing:border-box;outline:0;-webkit-tap-highlight-color:transparent}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background-color:var(--b);margin:0;padding:15px;display:flex;justify-content:center;align-items:center;min-height:100vh;color:var(--t);-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}input,select{user-select:text;-webkit-user-select:text}.c{background:var(--wh);padding:20px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.05);width:100%;max-width:450px;display:flex;flex-direction:column}h2{text-align:center;margin:0 0 20px 0;font-size:1.1rem;color:#222;text-transform:uppercase;line-height:1.4;border-bottom:2px solid #eee;padding-bottom:15px}.f-g{margin-bottom:15px}label{display:block;margin-bottom:6px;font-weight:600;font-size:.9rem;color:#555}input,select{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;font-size:1rem;background:#fff;-webkit-appearance:none;height:45px;color:#333}select{background-image:url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");background-repeat:no-repeat;background-position:right 12px top 50%;background-size:12px auto}input:focus,select:focus{border-color:var(--p)}.b-g{margin-top:25px}button{width:100%;padding:16px;border:none;border-radius:8px;font-size:1rem;font-weight:bold;cursor:pointer;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s;background-color:var(--w);color:#fff;box-shadow:0 4px 10px rgba(37,211,102,.3)}button:active{opacity:.8;transform:scale(.98)}.ft{margin-top:20px;text-align:center;font-size:.85rem;color:#888}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Simulação de Financiamento - Roger Oliveira</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root { --p: #0056b3; --w: #25D366; --b: #f4f4f9; --wh: #ffffff; --t: #333333; --e: #d9534f; --g: #6c757d; }
+        * { box-sizing: border-box; outline: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: -apple-system, system-ui, sans-serif; 
+            background-color: var(--b); 
+            margin: 0; 
+            padding: 10px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; 
+            min-height: 100vh; 
+            color: var(--t); 
+        }
+
+        .c { 
+            background: var(--wh); 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,.08); 
+            width: 100%; 
+            max-width: 450px; 
+            min-height: 420px; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            margin-top: 10px; 
+        }
+
+        h2 { text-align: center; margin: 0 0 20px 0; font-size: 1.1rem; color: #222; text-transform: uppercase; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .step { display: none; flex-direction: column; animation: fadeIn 0.3s ease; }
+        .step.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .f-g { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: .95rem; color: #444; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; background: #fff; height: 50px; }
+        .error-msg { color: var(--e); font-size: 0.85rem; margin-top: 5px; display: none; line-height: 1.3; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-next, .btn-send { flex: 2; padding: 16px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; background-color: var(--p); color: #fff; }
+        .btn-prev { flex: 1; padding: 16px; border: 1px solid #ccc; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; background-color: #eee; color: #555; text-transform: uppercase; }
+        .btn-send { background-color: var(--w); box-shadow: 0 4px 10px rgba(37,211,102,.3); }
+        .footer-info { margin-top: auto; text-align: center; font-size: 0.85rem; color: #777; padding-top: 20px; }
+        .page-indicator { font-size: 0.8rem; color: #aaa; margin-top: 15px; text-align: center; }
+        .sub-info { font-size: 0.85rem; color: #555; background: #f9f9f9; padding: 10px; border-radius: 8px; border-left: 4px solid var(--p); margin-bottom: 15px; }
+        .legal-notice { font-size: 0.7rem; color: #999; margin-top: 10px; font-style: italic; }
+    </style>
 </head>
-<body oncontextmenu="return false" ondragstart="return false">
-<div class="c"><h2>Dados para Simulação de<br>Financiamento Imobiliário</h2><form id="f1"><div class="f-g"><label>Data de Nascimento</label><input type="tel" id="nasc" placeholder="DD/MM/AAAA" maxlength="10" oninput="_mDt(this)" required></div><div class="f-g"><label>Estado Civil</label><select id="ec"><option value="Solteiro(a)">Solteiro(a)</option><option value="Casado(a)">Casado(a)</option><option value="Separado(a)">Separado(a)</option><option value="Divorciado(a)">Divorciado(a)</option><option value="Viúvo(a)">Viúvo(a)</option><option value="União Estável">União Estável</option></select></div><div class="f-g"><label>Pretende comprar sozinho(a)?</label><select id="cs"><option value="Sim">Sim</option><option value="Não">Não</option></select></div><div class="f-g"><label>Renda Bruta Pessoal</label><input type="text" id="rnd" class="m" placeholder="R$ 0,00" inputmode="numeric" onkeyup="_fM(this)" required></div><div class="f-g"><label>Tipo de Renda</label><select id="tr"><option value="Formal CLT">Formal CLT</option><option value="Informal / Autônomo">Informal / Autônomo</option><option value="Pró Labore">Pró Labore</option><option value="Misto (Formal + Informal)">Misto (Formal + Informal)</option></select></div><div class="f-g"><label>Declarou Imposto de Renda (IRPF/IRPJ)?</label><select id="dir"><option value="Sim">Sim</option><option value="Não">Não</option></select></div><div class="f-g"><label>Último ano da declaração (se houver)</label><input type="number" id="air" placeholder="Ex: 2024" inputmode="numeric"></div><div class="f-g"><label>Saldo de FGTS Pessoal</label><input type="text" id="fgts" class="m" placeholder="R$ 0,00" inputmode="numeric" onkeyup="_fM(this)" required></div><div class="f-g"><label>Valor Disponível (Entrada)</label><input type="text" id="ent" class="m" placeholder="R$ 0,00" inputmode="numeric" onkeyup="_fM(this)" required></div><div class="f-g"><label>Mais de 3 anos de contribuição FGTS?</label><select id="tfg"><option value="Não">Não</option><option value="Sim">Sim</option></select></div><div class="f-g"><label>Possui dívidas, acordos ou renegociações?</label><select id="div"><option value="Não">Não</option><option value="Sim">Sim</option></select></div><div class="b-g"><button type="button" onclick="_zRun()"><svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326z"></path></svg> Enviar para Roger</button></div></form><div class="ft">Consultor: <strong>Roger Oliveira</strong></div></div>
+<body oncontextmenu="return false">
+
+<div class="c">
+    <h2>Simulação de Financiamento</h2>
+
+    <form id="simuForm">
+        <div class="step active" id="step1">
+            <div class="f-g">
+                <label>Data de Nascimento</label>
+                <input type="tel" id="nasc" placeholder="DD/MM/AAAA" maxlength="10" oninput="_mDt(this)" required>
+                <div id="err-nasc" class="error-msg">Data inválida ou futura.</div>
+            </div>
+            <div class="page-indicator">Página 1 de 7</div>
+        </div>
+
+        <div class="step" id="step2">
+            <div class="f-g">
+                <label>Estado Civil</label>
+                <select id="ec" onchange="handleECChange()">
+                    <option value="">Selecione...</option>
+                    <option value="Solteiro(a)">Solteiro(a)</option>
+                    <option value="Casado(a)">Casado(a)</option>
+                    <option value="Separado(a)">Separado(a)</option>
+                    <option value="Divorciado(a)">Divorciado(a)</option>
+                    <option value="Viúvo(a)">Viúvo(a)</option>
+                    <option value="União Estável">União Estável</option>
+                </select>
+            </div>
+            <div id="dynamic-ec" class="f-g"></div>
+            <div class="btn-group">
+                <button type="button" class="btn-prev" onclick="prevStep(2)">Voltar</button>
+                <button type="button" class="btn-next" onclick="nextStep(2)">Continuar</button>
+            </div>
+            <div class="page-indicator">Página 2 de 7</div>
+        </div>
+
+        <div class="step" id="step3">
+            <div class="f-g"><label>Renda Bruta Pessoal</label><input type="text" id="rnd" placeholder="R$ 0,00" inputmode="numeric" onkeyup="_fM(this)"></div>
+            <div class="f-g">
+                <label>Tipo de Renda</label>
+                <select id="tr">
+                    <option value="Formal CLT">Formal CLT</option>
+                    <option value="Informal / Autônomo">Informal / Autônomo</option>
+                    <option value="Pró Labore">Pró Labore</option>
+                    <option value="Misto (Formal + Informal)">Misto (Formal + Informal)</option>
+                </select>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn-prev" onclick="prevStep(3)">Voltar</button>
+                <button type="button" class="btn-next" onclick="nextStep(3)">Continuar</button>
+            </div>
+            <div class="page-indicator">Página 3 de 7</div>
+        </div>
+
+        <div class="step" id="step4">
+            <div class="f-g">
+                <label>Declarou Imposto de Renda (IRPF/IRPJ)?</label>
+                <select id="dir" onchange="handleIRChange()">
+                    <option value="Não">Não</option>
+                    <option value="Sim">Sim</option>
+                </select>
+            </div>
+            <div id="ir-ano-cont" class="f-g" style="display:none">
+                <label>Ano da Última Declaração</label>
+                <input type="number" id="air" placeholder="Ex: 2024">
+                <div id="err-ir" class="error-msg"></div>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn-prev" onclick="prevStep(4)">Voltar</button>
+                <button type="button" class="btn-next" onclick="nextStep(4)">Continuar</button>
+            </div>
+            <div class="page-indicator">Página 4 de 7</div>
+        </div>
+
+        <div class="step" id="step5">
+            <div class="f-g"><label>Saldo de FGTS Pessoal?</label><input type="text" id="fgts" placeholder="R$ 0,00" onkeyup="_fM(this)"></div>
+            <div class="f-g">
+                <label>Mais de 3 anos de contribuição no FGTS?</label>
+                <select id="tfg"><option value="Não">Não</option><option value="Sim">Sim</option></select>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn-prev" onclick="prevStep(5)">Voltar</button>
+                <button type="button" class="btn-next" onclick="nextStep(5)">Continuar</button>
+            </div>
+            <div class="page-indicator">Página 5 de 7</div>
+        </div>
+
+        <div class="step" id="step6">
+            <div class="f-g">
+                <label>Valor Disponível (entrada/ato)?</label>
+                <input type="text" id="ent" placeholder="R$ 0,00" onkeyup="_fM(this)">
+                <div id="err-entrada" class="error-msg">Atenção: O FGTS não é entrada. Informe o valor líquido disponível para pagamento imediato hoje.</div>
+            </div>
+            <div class="f-g">
+                <label>Possui Dívidas / Acordos / Negociações?</label>
+                <select id="div"><option value="Não">Não</option><option value="Sim">Sim</option></select>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn-prev" onclick="prevStep(6)">Voltar</button>
+                <button type="button" class="btn-next" onclick="nextStep(6)">Continuar</button>
+            </div>
+            <div class="page-indicator">Página 6 de 7</div>
+        </div>
+
+        <div class="step" id="step7">
+            <button type="button" class="btn-send" onclick="_zRun()">🚀 Enviar Respostas</button>
+            <div class="btn-group"><button type="button" class="btn-prev" onclick="prevStep(7)" style="flex:1">Rever Informações</button></div>
+            <div class="footer-info">
+                <strong>Consultor: Roger Oliveira</strong><br>
+                Creci-MG 45.117 – WhatsApp (31) 93618-0070<br>
+                <span style="color:var(--w); font-weight: bold;">✔ Canal de Envio Seguro</span>
+                <div class="legal-notice">Este documento possui dados para realização de uma simulação preliminar.</div>
+            </div>
+            <div class="page-indicator">Página 7 de 7</div>
+        </div>
+    </form>
+</div>
+
 <script>
-// --- PROTEÇÃO ATIVA ---
-(function(){const _0x=console;Object.defineProperty(window,"console",{get:function(){if(_0x._commandLineAPI)throw"Erro de Acesso";return _0x},set:function(v){_0x=v}})})();
-setInterval(function(){const t=performance.now();debugger;if(performance.now()-t>200){document.body.innerHTML="";window.location.reload()}},2000);
-document.addEventListener('contextmenu',e=>e.preventDefault());
-document.onkeydown=function(e){const k=e.keyCode;if(k==123||(e.ctrlKey&&e.shiftKey&&(k==73||k==67||k==74))||(e.ctrlKey&&(k==85||k==83||k==80)))return!1};
+// --- PROTEÇÃO ---
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', function(e) {
+    if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) {
+        e.preventDefault(); return false;
+    }
+});
 
-// --- LÓGICA OFUSCADA ---
-const _g=(id)=>document.getElementById(id);
-const inputs=document.querySelectorAll('input, select');
-inputs.forEach(i=>{i.addEventListener('focus',function(){setTimeout(()=>{this.scrollIntoView({behavior:'smooth',block:'center'})},300)})});
+const _g = (id) => document.getElementById(id);
 
-function _mDt(v){let x=v.value.replace(/\D/g,"");if(x.length>2)x=x.replace(/^(\d{2})(\d)/,"$1/$2");if(x.length>5)x=x.replace(/^(\d{2})\/(\d{2})(\d)/,"$1/$2/$3");v.value=x}
-_g('air').addEventListener('input',function(){const v=parseInt(this.value),a=new Date().getFullYear();if(this.value.length>=4&&v>a){alert("Ano inválido.");this.value=a}});
-
-function _fM(i){var v=i.value.replace(/\D/g,'');v=(v/100).toFixed(2)+'';v=v.replace(".",",");v=v.replace(/(\d)(?=(\d{3})+(?!\d))/g,'$1.');i.value="R$ "+v}
-
-function _zRun(){
-    const n=_g("nasc").value,r=_g("rnd").value;
-    if(!n||!r){alert("Preencha Nascimento e Renda.");return}
-    const d={n:n,c:_g("ec").value,s:_g("cs").value,r:r||"R$ 0,00",t:_g("tr").value,d:_g("dir").value,a:_g("air").value||"--",f:_g("fgts").value||"R$ 0,00",e:_g("ent").value||"R$ 0,00",tf:_g("tfg").value,dv:_g("div").value,h:new Date().toLocaleDateString("pt-BR")};
-    _pG(d); _wS(d);
+// --- MÁSCARAS ---
+function _mDt(v) {
+    let x = v.value.replace(/\D/g, "");
+    if (x.length > 2) x = x.replace(/^(\d{2})(\d)/, "$1/$2");
+    if (x.length > 5) x = x.replace(/^(\d{2})\/(\d{2})(\d)/, "$1/$2/$3");
+    v.value = x;
+    if (x.length === 10) {
+        if (validarData(x)) { _g('err-nasc').style.display = 'none'; setTimeout(() => nextStep(1), 600); }
+        else { _g('err-nasc').style.display = 'block'; }
+    }
 }
 
-function _pG(o){
-    const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a5"});
-    doc.setFillColor(255,255,255);doc.rect(0,0,148,210,"F");
-    doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(0,50,100);
-    doc.text("DADOS PARA SIMULAÇÃO DE\nFINANCIAMENTO IMOBILIÁRIO",74,12,{align:"center"});
-    doc.setFontSize(8);doc.setTextColor(100);doc.setFont("helvetica","normal");
-    doc.text(`Data: ${o.h}`,138,12,{align:"right"});
-    doc.setLineWidth(0.5);doc.setDrawColor(200);doc.line(10,20,138,20);
-    let y=30;
-    const _l=(l,v)=>{
-        doc.setFont("helvetica","bold");doc.setTextColor(50);doc.text(l,10,y);
-        doc.setFont("helvetica","normal");doc.setTextColor(0);doc.text(v,138,y,{align:"right"});
-        doc.setDrawColor(240);doc.line(10,y+2,138,y+2);y+=8;
+function _fM(i) {
+    var v = i.value.replace(/\D/g, '');
+    v = (v / 100).toFixed(2).replace(".", ",").replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+    i.value = "R$ " + v;
+    if (i.id === 'ent') _g('err-entrada').style.display = 'none';
+}
+
+function validarData(data) {
+    const p = data.split("/");
+    const d = parseInt(p[0], 10), m = parseInt(p[1], 10)-1, a = parseInt(p[2], 10);
+    const dt = new Date(a, m, d);
+    return dt.getDate() === d && dt.getMonth() === m && dt < new Date() && a > 1920;
+}
+
+// --- NAVEGAÇÃO ---
+function nextStep(c) {
+    if (c === 2 && _g('ec').value === "") return alert("Selecione o estado civil.");
+    if (c === 4 && _g('dir').value === "Sim") {
+        const ano = parseInt(_g('air').value);
+        const agora = new Date();
+        if (ano > agora.getFullYear()) { _showErrIR("O ano não pode ser no futuro."); return; }
+        _g('err-ir').style.display = 'none';
+    }
+    if (c === 6 && _g('ent').value !== "R$ 0,00" && _g('ent').value === _g('fgts').value) {
+        _g('err-entrada').style.display = 'block'; return;
+    }
+    _g(`step${c}`).classList.remove('active');
+    _g(`step${c + 1}`).classList.add('active');
+    window.scrollTo(0,0);
+}
+
+function _showErrIR(msg) { const e = _g('err-ir'); e.innerText = msg; e.style.display = 'block'; }
+function prevStep(c) { _g(`step${c}`).classList.remove('active'); _g(`step${c - 1}`).classList.add('active'); window.scrollTo(0,0); }
+
+function handleECChange() {
+    const ec = _g('ec').value;
+    const q = {
+        "Solteiro(a)": "Confirma que não possui divórcio anterior? <br><br> <label>Comprar sozinho?</label><select id='cs'><option value='Sim'>Sim</option><option value='Não'>Não</option></select>",
+        "Casado(a)": "Possui cópia da Certidão de Casamento?<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select>",
+        "Separado(a)": "Separação averbada na Certidão?<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select>",
+        "Divorciado(a)": "Divórcio averbada na Certidão?<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select>",
+        "Viúvo(a)": "Viuvez averbada na Certidão?<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select>",
+        "União Estável": "Possui documento da união?<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select>"
     };
-    _l("Data de Nascimento:",o.n);_l("Estado Civil:",o.c);_l("Comprar Sozinho(a):",o.s);
-    y+=2;_l("Renda Bruta:",o.r);_l("Tipo de Renda:",o.t);_l("Declarou IR:",o.d);
-    if(o.d==="Sim")_l("Último Ano IR:",o.a);else y+=2;
-    _l("Saldo FGTS:",o.f);_l("Valor Entrada:",o.e);_l("+3 Anos de FGTS:",o.tf);_l("Possui Dívidas:",o.dv);
-    y+=10;doc.setFontSize(7);doc.setTextColor(150);
-    doc.text("Consultor: Roger Oliveira",74,y,{align:"center"});
-    doc.text("Contato: (31) 93618-0070",74,y+4,{align:"center"});
-    doc.save("Ficha_Simulacao_RogerOliveira.pdf");
+    _g('dynamic-ec').innerHTML = q[ec] ? `<div class='sub-info'>${q[ec]}</div>` : "";
 }
 
-function _wS(o){
-    const _ph = atob('NTUzMTkzNjE4MDA3MA=='); // Número codificado
-    let t=`*OLÁ ROGER, SEGUEM MEUS DADOS:*%0a%0a*--- PESSOAL ---*%0a*Nascimento:* ${o.n}%0a*Est. Civil:* ${o.c}%0a*Comprar Sozinho:* ${o.s}%0a%0a*--- FINANCEIRO ---*%0a*Renda:* ${o.r}%0a*Tipo:* ${o.t}%0a*Declarou IR:* ${o.d} (Ano: ${o.a})%0a%0a*--- RECURSOS ---*%0a*FGTS:* ${o.f}%0a*Entrada:* ${o.e}%0a*3 anos FGTS:* ${o.tf}%0a*Dívidas:* ${o.dv}%0a%0a_(O PDF com os dados também foi baixado)_`;
-    window.open(`https://wa.me/${_ph}?text=${t}`,"_blank");
+function handleIRChange() { _g('ir-ano-cont').style.display = (_g('dir').value === "Sim") ? "block" : "none"; }
+
+// --- PDF E WHATSAPP ---
+function _zRun() {
+    const d = {
+        n: _g("nasc").value, c: _g("ec").value,
+        sub: _g("sub_q") ? _g("sub_q").value : (_g("cs") ? "Sozinho: " + _g("cs").value : "--"),
+        r: _g("rnd").value, t: _g("tr").value, ir: _g("dir").value, a: _g("air").value || "--",
+        f: _g("fgts").value, e: _g("ent").value, tf: _g("tfg").value, dv: _g("div").value, h: new Date().toLocaleDateString("pt-BR")
+    };
+    _pG(d); 
+    _wS(d);
+}
+
+function _pG(o) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    doc.setFillColor(0, 86, 179); doc.rect(0, 0, 210, 45, 'F');
+    doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(22);
+    doc.text("SIMULAÇÃO DE FINANCIAMENTO", 105, 22, { align: "center" });
+    doc.setFontSize(10); doc.text(`Gerado em: ${o.h}`, 105, 32, { align: "center" });
+    let y = 60;
+    const drawS = (t) => {
+        doc.setFillColor(245, 245, 245); doc.rect(10, y-6, 190, 10, 'F');
+        doc.setTextColor(0, 86, 179); doc.setFont("helvetica", "bold"); doc.text(t, 15, y+1); y += 15;
+    };
+    const addD = (l, v) => {
+        doc.setTextColor(80); doc.setFont("helvetica", "bold"); doc.text(l, 15, y);
+        doc.setTextColor(0); doc.setFont("helvetica", "normal"); doc.text(v, 90, y); y += 9;
+    };
+    drawS("DADOS DO CLIENTE");
+    addD("Nascimento:", o.n); addD("Estado Civil:", o.c); addD("Adicional:", o.sub);
+    y += 5; drawS("FINANCEIRO");
+    addD("Renda:", o.r); addD("Tipo:", o.t); addD("IRPF:", o.ir + (o.ir==="Sim" ? " - " + o.a : ""));
+    y += 5; drawS("RECURSOS");
+    addD("FGTS:", o.f); addD("+3 Anos FGTS:", o.tf); addD("Entrada (Ato):", o.e); addD("Dívidas:", o.dv);
+    doc.setFillColor(37, 211, 102); doc.rect(0, 250, 210, 47, 'F');
+    doc.setTextColor(255); doc.setFontSize(14); doc.text("CONSULTOR: ROGER OLIVEIRA", 105, 263, { align: "center" });
+    doc.setFontSize(11); doc.text("Creci-MG 45.117 | (31) 93618-0070", 105, 271, { align: "center" });
+    doc.setFontSize(8); doc.setFont("helvetica", "italic");
+    doc.text("Este documento possui dados para realização de uma simulação preliminar,", 105, 280, { align: "center" });
+    doc.text("análise sujeita a aprovação bancária.", 105, 285, { align: "center" });
+    doc.save(`Simulacao_Roger.pdf`);
+}
+
+function _wS(o) {
+    const ph = "5531936180070";
+    const msg = encodeURIComponent(
+        `*NOVA SIMULAÇÃO DE FINANCIAMENTO*\n\n` +
+        `*👤 Nascimento:* ${o.n}\n*💍 Estado Civil:* ${o.c}\n*📑 Adicional:* ${o.sub}\n\n` +
+        `*💰 Renda:* ${o.r} (${o.t})\n*📁 IR:* ${o.ir} (Ano: ${o.a})\n\n` +
+        `*🏦 FGTS:* ${o.f} (+3 anos: ${o.tf})\n*💵 Entrada:* ${o.e}\n*⚠️ Dívidas:* ${o.dv}\n\n` +
+        `_Este documento possui dados para realização de uma simulação preliminar, sujeita a análise bancária._`
+    );
+
+    // IDENTIFICAÇÃO DE DISPOSITIVO
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // URL DINÂMICA: wa.me abre o APP no mobile; web.whatsapp abre o navegador no PC
+    const finalUrl = isMobile 
+        ? `https://wa.me/${ph}?text=${msg}` 
+        : `https://web.whatsapp.com/send?phone=${ph}&text=${msg}`;
+
+    // Tenta abrir em nova aba
+    const win = window.open(finalUrl, "_blank");
+
+    // Fallback caso o pop-up seja bloqueado ou falhe
+    if (!win || win.closed || typeof win.closed === 'undefined') { 
+        window.location.href = finalUrl; 
+    }
 }
 </script>
 </body>
