@@ -127,8 +127,8 @@
         <div class="step" id="step6">
             <div class="f-g">
                 <label>Valor Disponível (entrada/ato)?</label>
-                <input type="text" id="ent" placeholder="R$ 0,00" onkeyup="_fM(this)">
-                <div id="err-entrada" class="error-msg">Atenção: O FGTS não é entrada. Informe o valor líquido disponível para pagamento imediato hoje.</div>
+                <input type="text" id="ent" placeholder="R$ 0,00" onkeyup="_fM(this); checkEntrada()">
+                <div id="err-entrada" class="error-msg">Atenção: O FGTS não é entrada. Informe o valor disponível para pagamento imediato hoje.</div>
             </div>
             <div class="f-g">
                 <label>Possui Dívidas / Acordos / Negociações?</label>
@@ -176,6 +176,24 @@ function _fM(i) {
     i.value = "R$ " + v;
 }
 
+// --- NOVA FUNÇÃO DE VALIDAÇÃO DA ENTRADA ---
+function checkEntrada() {
+    const f = _g('fgts').value;
+    const e = _g('ent').value;
+    const err = _g('err-entrada');
+    
+    // Converte para inteiros para comparação (remove símbolos)
+    const vf = parseInt(f.replace(/\D/g,"")) || 0;
+    const ve = parseInt(e.replace(/\D/g,"")) || 0;
+
+    if (vf > 0 && ve > 0 && vf === ve) {
+        err.style.display = 'block';
+        err.innerText = "Atenção: A entrada é um recurso diferente do FGTS. Entrada é valor para pagamento imediato à assinatura de contrato.";
+    } else {
+        err.style.display = 'none';
+    }
+}
+
 function validarData(data) {
     const p = data.split("/");
     const d = parseInt(p[0], 10), m = parseInt(p[1], 10)-1, a = parseInt(p[2], 10);
@@ -190,10 +208,18 @@ function handleECChange() {
     
     if(ec === "Solteiro(a)") {
         container.innerHTML = `<div class='sub-info'><label>Comprar sozinho?</label><select id='cs'><option value='Sim'>Sim</option><option value='Não'>Não</option></select></div>`;
-    } else if(ec === "Casado(a)") {
-        container.innerHTML = `<div class='sub-info'>Possui cópia da Certidão de Casamento?<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select></div>`;
     } else if(ec !== "") {
-        container.innerHTML = `<div class='sub-info'>${ec.replace("(a)","")} averbada na Certidão?<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select></div>`;
+        let msg = "";
+        
+        // Aplicação das frases solicitadas
+        if(ec === "Casado(a)") msg = "Possui cópia da Certidão de Casamento?";
+        else if(ec === "Separado(a)") msg = "Separação averbada na Certidão?";
+        else if(ec === "Divorciado(a)") msg = "Divorcio averbado na Certidão?";
+        else if(ec === "Viúvo(a)") msg = "Viuvez averbada na Certidão?";
+        else if(ec === "União Estável") msg = "Possui documento dessa união?";
+        else msg = ec + " averbada na Certidão?";
+
+        container.innerHTML = `<div class='sub-info'>${msg}<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select></div>`;
     } else {
         container.innerHTML = "";
     }
@@ -305,16 +331,97 @@ function _zRun() {
         sub: _g("sub_q") ? _g("sub_q").value : "--",
         sozinho: buyingAlone,
         r: _g("rnd").value, t: _g("tr").value, ir: _g("dir").value, a: _g("air").value || "--",
-        f: _g("fgts").value, e: _g("ent").value, tf: _g("tfg").value, dv: _g("div").value, h: new Date().toLocaleDateString("pt-BR")
+        f: _g("fgts").value, e: _g("ent").value, tf: _g("tfg").value, dv: _g("div").value
     };
     
-    // PDF
+    // PDF GENERATION
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    doc.setFont("helvetica", "bold"); doc.text("RESUMO DA SIMULAÇÃO", 10, 10);
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // -- Cabeçalho --
+    doc.setFillColor(0, 86, 179); // Azul Principal
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("SIMULAÇÃO DE FINANCIAMENTO", pageWidth / 2, 20, { align: 'center' });
+    
+    doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    let y = 20;
-    Object.entries(d).forEach(([k, v]) => { doc.text(`${k.toUpperCase()}: ${v}`, 10, y); y += 10; });
+    const today = new Date().toLocaleDateString("pt-BR") + " às " + new Date().toLocaleTimeString("pt-BR");
+    doc.text(`Gerado em: ${today}`, pageWidth / 2, 30, { align: 'center' });
+
+    // -- Corpo do Documento --
+    doc.setTextColor(60, 60, 60);
+    doc.setFontSize(12);
+    let y = 60;
+    const leftCol = 20;
+    const rightCol = 100;
+    const lineSpacing = 12;
+
+    const printRow = (label, value) => {
+        doc.setFont("helvetica", "bold");
+        doc.text(label, leftCol, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(String(value), rightCol, y);
+        
+        // Linha divisória sutil
+        doc.setDrawColor(230, 230, 230);
+        doc.line(leftCol, y + 4, pageWidth - 20, y + 4);
+        
+        y += lineSpacing;
+    };
+
+    // Dados Pessoais
+    doc.setFontSize(14); doc.setTextColor(0, 86, 179); doc.text("DADOS PESSOAIS", leftCol, y); y+=10;
+    doc.setFontSize(12); doc.setTextColor(60, 60, 60);
+    
+    printRow("Data de Nascimento:", d.n);
+    printRow("Estado Civil:", d.c);
+    if(d.reg !== "--") printRow("Regime de Bens:", d.reg);
+    if(d.sub !== "--") printRow("Averbação / Doc:", d.sub);
+    printRow("Compra Sozinho(a)?", d.sozinho);
+    y += 5;
+
+    // Dados Financeiros
+    doc.setFontSize(14); doc.setTextColor(0, 86, 179); doc.text("DADOS FINANCEIROS", leftCol, y); y+=10;
+    doc.setFontSize(12); doc.setTextColor(60, 60, 60);
+
+    printRow("Renda Bruta:", d.r);
+    printRow("Tipo de Renda:", d.t);
+    printRow("Declarou IR?", d.ir);
+    if(d.ir === "Sim") printRow("Ano Declaração:", d.a);
+    y += 5;
+
+    // Recursos e Dívidas
+    doc.setFontSize(14); doc.setTextColor(0, 86, 179); doc.text("RECURSOS E DÍVIDAS", leftCol, y); y+=10;
+    doc.setFontSize(12); doc.setTextColor(60, 60, 60);
+
+    printRow("Saldo FGTS:", d.f);
+    printRow("Mais de 3 anos FGTS?", d.tf);
+    printRow("Entrada:", d.e);
+    printRow("Possui Dívidas?", d.dv);
+
+    // -- Rodapé --
+    const footerY = pageHeight - 35;
+    doc.setDrawColor(0, 86, 179);
+    doc.setLineWidth(0.5);
+    doc.line(20, footerY - 5, pageWidth - 20, footerY - 5);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(0, 86, 179);
+    doc.text("Roger Oliveira - Consultor Imobiliário", pageWidth / 2, footerY + 5, { align: 'center' });
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.setTextColor(100, 100, 100);
+    doc.text("Creci-MG 45.117 | WhatsApp (31) 93618-0070", pageWidth / 2, footerY + 12, { align: 'center' });
+
+    // Salvar
     doc.save(`Simulacao_${d.n.replace(/\//g,'-')}.pdf`);
 
     // WHATSAPP
