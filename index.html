@@ -34,9 +34,9 @@
         /* Estilo do Contador Online */
         .online-badge {
             position: fixed;
-            bottom: 20px; /* Mudou de top para bottom */
-            left: 50%; /* Centraliza horizontalmente */
-            transform: translateX(-50%); /* Ajuste fino do centro */
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.95);
             padding: 8px 16px;
             border-radius: 20px;
@@ -45,7 +45,8 @@
             font-weight: 600;
             color: #333;
             z-index: 9999;
-            display: flex; 
+            /* IMPORTANTE: Começa invisível para não travar se não tiver conexão */
+            display: none; 
             align-items: center;
             gap: 8px;
             border: 1px solid #e0e0e0;
@@ -632,63 +633,72 @@ function _zRun() {
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Configuração do Firebase
-    const firebaseConfig = JSON.parse(__firebase_config);
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
     async function initPresence() {
-        // 1. Autenticação
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-            await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-            await signInAnonymously(auth);
+        // Verifica se as configurações do ambiente existem (Canvas)
+        // Se não existirem (GitHub Pages), encerra o script sem erro para não travar o formulário
+        if (typeof __firebase_config === 'undefined') {
+            console.warn("Ambiente externo detectado (GitHub/Local). O contador online requer configuração manual do Firebase.");
+            return; 
         }
 
-        onAuthStateChanged(auth, (user) => {
-            if (!user) return;
+        try {
+            const firebaseConfig = JSON.parse(__firebase_config);
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-            // 2. Heartbeat (atualiza sua presença a cada 10s)
-            // Path: /artifacts/{appId}/public/data/online_users/{userId}
-            const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_users', user.uid);
-            const updateHeartbeat = () => {
-                setDoc(userRef, { last_seen: Date.now() }, { merge: true });
-            };
-            
-            updateHeartbeat();
-            setInterval(updateHeartbeat, 10000);
+            // 1. Autenticação
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
 
-            // 3. Ouvir outros usuários
-            const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'online_users');
-            onSnapshot(usersRef, (snapshot) => {
-                const now = Date.now();
-                // Filtra usuários vistos nos últimos 20 segundos
-                // (Se o heartbeat é a cada 10s, 20s de margem é seguro)
-                const count = snapshot.docs.filter(d => {
-                    const data = d.data();
-                    // Verifica se existe o campo e se é recente
-                    return data.last_seen && (data.last_seen > (now - 20000));
-                }).length;
+            onAuthStateChanged(auth, (user) => {
+                if (!user) return;
+
+                // 2. Heartbeat (atualiza sua presença a cada 10s)
+                const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_users', user.uid);
+                const updateHeartbeat = () => {
+                    setDoc(userRef, { last_seen: Date.now() }, { merge: true });
+                };
                 
-                const countSpan = document.getElementById('online-count');
-                
-                if(countSpan) {
-                    // Texto singular/plural
-                    const label = count === 1 ? ' pessoa online' : ' pessoas online';
-                    countSpan.innerText = count + label;
+                updateHeartbeat();
+                setInterval(updateHeartbeat, 10000);
+
+                // 3. Ouvir outros usuários
+                const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'online_users');
+                onSnapshot(usersRef, (snapshot) => {
+                    const now = Date.now();
+                    const count = snapshot.docs.filter(d => {
+                        const data = d.data();
+                        return data.last_seen && (data.last_seen > (now - 20000));
+                    }).length;
                     
-                    // Feedback visual quando atualiza (opcional, mas legal)
-                    const badge = document.getElementById('online-counter');
-                    if(badge) badge.style.borderColor = '#25D366';
-                }
-            }, (error) => {
-                console.error("Erro ao sincronizar usuários:", error);
-                const countSpan = document.getElementById('online-count');
-                if(countSpan) countSpan.innerText = "Offline";
+                    const countSpan = document.getElementById('online-count');
+                    
+                    if(countSpan) {
+                        const label = count === 1 ? ' pessoa online' : ' pessoas online';
+                        countSpan.innerText = count + label;
+                        
+                        // SÓ AGORA mostra o badge, pois sabemos que a conexão funcionou
+                        const badge = document.getElementById('online-counter');
+                        if(badge) {
+                            badge.style.display = 'flex';
+                            badge.style.borderColor = '#25D366';
+                        }
+                    }
+                }, (error) => {
+                    console.error("Erro ao sincronizar usuários:", error);
+                    // Se der erro de conexão, mantém oculto
+                });
             });
-        });
+
+        } catch (error) {
+            console.error("Erro na inicialização do Firebase:", error);
+            // Em caso de qualquer erro de script, o site continua funcionando
+        }
     }
 
     initPresence();
