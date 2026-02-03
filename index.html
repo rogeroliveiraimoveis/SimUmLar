@@ -6,7 +6,7 @@
     <title>Simulação de Financiamento - Roger Oliveira</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --p: #0056b3; --w: #25D366; --b: #f4f4f9; --wh: #ffffff; --t: #333333; --e: #d9534f; --g: #6c757d; }
+        :root { --p: #0056b3; --w: #25D366; --b: #f4f4f9; --wh: #ffffff; --t: #333333; --e: #d9534f; --g: #6c757d; --warn: #ffc107; --warn-t: #856404; }
         * { box-sizing: border-box; outline: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--b); margin: 0; padding: 10px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; color: var(--t); }
         .c { background: var(--wh); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,.08); width: 100%; max-width: 450px; min-height: 420px; display: flex; flex-direction: column; position: relative; margin-top: 10px; }
@@ -18,6 +18,7 @@
         label { display: block; margin-bottom: 8px; font-weight: 600; font-size: .95rem; color: #444; }
         input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; background: #fff; height: 50px; }
         .error-msg { color: var(--e); font-size: 0.85rem; margin-top: 5px; display: none; line-height: 1.3; }
+        .warn-msg { background-color: #fff3cd; color: var(--warn-t); padding: 10px; border-radius: 6px; border: 1px solid #ffeeba; font-size: 0.85rem; margin-top: 5px; display: none; line-height: 1.3; }
         .alert-box { background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; border-left: 5px solid #ffeeba; margin-bottom: 15px; font-size: 0.9rem; }
         .btn-group { display: flex; gap: 10px; margin-top: 10px; }
         .btn-next, .btn-send { flex: 2; padding: 16px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; background-color: var(--p); color: #fff; }
@@ -26,6 +27,9 @@
         .footer-info { margin-top: auto; text-align: center; font-size: 0.85rem; color: #777; padding-top: 20px; }
         .page-indicator { font-size: 0.8rem; color: #aaa; margin-top: 15px; text-align: center; }
         .sub-info { font-size: 0.85rem; color: #555; background: #f9f9f9; padding: 10px; border-radius: 8px; border-left: 4px solid var(--p); margin-bottom: 15px; }
+        
+        /* Estilo para opções desabilitadas parecerem placeholders */
+        select option[disabled] { color: #999; }
     </style>
 </head>
 <body oncontextmenu="return false">
@@ -47,7 +51,7 @@
             <div class="f-g">
                 <label>Estado Civil</label>
                 <select id="ec" onchange="handleECChange()">
-                    <option value="">Selecione...</option>
+                    <option value="" disabled selected>Selecione...</option>
                     <option value="Solteiro(a)">Solteiro(a)</option>
                     <option value="Casado(a)">Casado(a)</option>
                     <option value="Separado(a)">Separado(a)</option>
@@ -74,10 +78,15 @@
         </div>
 
         <div class="step" id="step3">
-            <div class="f-g"><label>Renda Bruta Pessoal</label><input type="text" id="rnd" placeholder="R$ 0,00" inputmode="numeric" onkeyup="_fM(this)"></div>
+            <div class="f-g">
+                <label>Renda Bruta Pessoal</label>
+                <input type="text" id="rnd" value="R$ 0,00" inputmode="numeric" onkeyup="_fM(this); checkRenda()" onblur="checkRenda()">
+                <div id="warn-rnd" class="warn-msg">⚠️ Você informou um valor menor que o salário mínimo! Verifique se está digitando o valor certo.</div>
+            </div>
             <div class="f-g">
                 <label>Tipo de Renda</label>
                 <select id="tr">
+                    <option value="" disabled selected>Selecione...</option>
                     <option value="Formal CLT">Formal CLT</option>
                     <option value="Informal / Autônomo">Informal / Autônomo</option>
                     <option value="Pró Labore">Pró Labore</option>
@@ -95,14 +104,16 @@
             <div class="f-g">
                 <label>Declarou Imposto de Renda (IRPF/IRPJ)?</label>
                 <select id="dir" onchange="handleIRChange()">
+                    <option value="" disabled selected>Selecione...</option>
                     <option value="Não">Não</option>
                     <option value="Sim">Sim</option>
                 </select>
             </div>
             <div id="ir-ano-cont" class="f-g" style="display:none">
                 <label>Ano da Última Declaração</label>
-                <input type="number" id="air" placeholder="Ex: 2024">
+                <input type="number" id="air" placeholder="Ex: 2024" oninput="checkIRDate()">
                 <div id="err-ir" class="error-msg"></div>
+                <div id="warn-ir-date" class="warn-msg" style="display:none">A declaração de imposto deste ano informado ainda não começou.</div>
             </div>
             <div class="btn-group">
                 <button type="button" class="btn-prev" onclick="prevStep(4)">Voltar</button>
@@ -112,10 +123,14 @@
         </div>
 
         <div class="step" id="step5">
-            <div class="f-g"><label>Saldo de FGTS Pessoal?</label><input type="text" id="fgts" placeholder="R$ 0,00" onkeyup="_fM(this)"></div>
+            <div class="f-g"><label>Saldo de FGTS Pessoal?</label><input type="text" id="fgts" value="R$ 0,00" onkeyup="_fM(this)"></div>
             <div class="f-g">
                 <label>Mais de 3 anos de contribuição no FGTS?</label>
-                <select id="tfg"><option value="Não">Não</option><option value="Sim">Sim</option></select>
+                <select id="tfg">
+                    <option value="" disabled selected>Selecione...</option>
+                    <option value="Não">Não</option>
+                    <option value="Sim">Sim</option>
+                </select>
             </div>
             <div class="btn-group">
                 <button type="button" class="btn-prev" onclick="prevStep(5)">Voltar</button>
@@ -127,12 +142,16 @@
         <div class="step" id="step6">
             <div class="f-g">
                 <label>Valor Disponível (entrada/ato)?</label>
-                <input type="text" id="ent" placeholder="R$ 0,00" onkeyup="_fM(this); checkEntrada()">
+                <input type="text" id="ent" value="R$ 0,00" onkeyup="_fM(this); checkEntrada()">
                 <div id="err-entrada" class="error-msg">Atenção: O FGTS não é entrada. Informe o valor disponível para pagamento imediato hoje.</div>
             </div>
             <div class="f-g">
                 <label>Possui Dívidas / Acordos / Negociações?</label>
-                <select id="div"><option value="Não">Não</option><option value="Sim">Sim</option></select>
+                <select id="div">
+                    <option value="" disabled selected>Selecione...</option>
+                    <option value="Não">Não</option>
+                    <option value="Sim">Sim</option>
+                </select>
             </div>
             <div class="btn-group">
                 <button type="button" class="btn-prev" onclick="prevStep(6)">Voltar</button>
@@ -142,7 +161,7 @@
         </div>
 
         <div class="step" id="step7">
-            <button type="button" class="btn-send" onclick="_zRun()">🚀 Enviar Respostas</button>
+            <button type="button" class="btn-send" onclick="_zRun()">🚀 Baixar PDF e Abrir WhatsApp</button>
             <div class="btn-group"><button type="button" class="btn-prev" onclick="prevStep(7)" style="flex:1">Rever Informações</button></div>
             <div class="footer-info">
                 <strong>Consultor: Roger Oliveira</strong><br>
@@ -176,13 +195,49 @@ function _fM(i) {
     i.value = "R$ " + v;
 }
 
-// --- NOVA FUNÇÃO DE VALIDAÇÃO DA ENTRADA ---
+// --- VALIDAÇÃO SALÁRIO MÍNIMO ---
+function checkRenda() {
+    const valStr = _g('rnd').value.replace(/\D/g, ''); // Remove R$, pontos e virgulas
+    // O formato é "R$ 1.000,00" -> replace deixa "100000" -> divide por 100 -> 1000.00
+    const val = parseFloat(valStr) / 100;
+
+    // Ajuste: Só mostra erro se for MAIOR que 0 e MENOR que 1621
+    if (val > 0.01 && val < 1621.00) {
+        _g('warn-rnd').style.display = 'block';
+    } else {
+        _g('warn-rnd').style.display = 'none';
+    }
+}
+
+// --- VALIDAÇÃO DATA IR ---
+function checkIRDate() {
+    const field = _g('air');
+    const val = parseInt(field.value);
+    const warn = _g('warn-ir-date');
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    
+    // Data limite: 15 de Março do ano corrente
+    // Mês é base 0 no JS, então 2 representa Março
+    const limitDate = new Date(currentYear, 2, 15); 
+
+    if (val > currentYear) {
+        warn.style.display = 'block';
+        warn.innerText = 'Não é possível informar declaração de ano superior ao atual.';
+    } else if (val === currentYear && now < limitDate) {
+        warn.style.display = 'block';
+        warn.innerText = 'A declaração de imposto deste ano informado ainda não começou.';
+    } else {
+        warn.style.display = 'none';
+    }
+}
+
+// --- VALIDAÇÃO DA ENTRADA ---
 function checkEntrada() {
     const f = _g('fgts').value;
     const e = _g('ent').value;
     const err = _g('err-entrada');
     
-    // Converte para inteiros para comparação (remove símbolos)
     const vf = parseInt(f.replace(/\D/g,"")) || 0;
     const ve = parseInt(e.replace(/\D/g,"")) || 0;
 
@@ -207,11 +262,17 @@ function handleECChange() {
     const container = _g('dynamic-ec');
     
     if(ec === "Solteiro(a)") {
-        container.innerHTML = `<div class='sub-info'><label>Comprar sozinho?</label><select id='cs'><option value='Sim'>Sim</option><option value='Não'>Não</option></select></div>`;
+        container.innerHTML = `
+        <div class='sub-info'>
+            <label>Comprar sozinho?</label>
+            <select id='cs'>
+                <option value='' disabled selected>Selecione...</option>
+                <option value='Sim'>Sim</option>
+                <option value='Não'>Não</option>
+            </select>
+        </div>`;
     } else if(ec !== "") {
         let msg = "";
-        
-        // Aplicação das frases solicitadas
         if(ec === "Casado(a)") msg = "Possui cópia da Certidão de Casamento?";
         else if(ec === "Separado(a)") msg = "Separação averbada na Certidão?";
         else if(ec === "Divorciado(a)") msg = "Divorcio averbado na Certidão?";
@@ -219,7 +280,7 @@ function handleECChange() {
         else if(ec === "União Estável") msg = "Possui documento dessa união?";
         else msg = ec + " averbada na Certidão?";
 
-        container.innerHTML = `<div class='sub-info'>${msg}<select id='sub_q'><option value='Sim'>Sim</option><option value='Não'>Não</option></select></div>`;
+        container.innerHTML = `<div class='sub-info'>${msg}<select id='sub_q'><option value='' disabled selected>Selecione...</option><option value='Sim'>Sim</option><option value='Não'>Não</option></select></div>`;
     } else {
         container.innerHTML = "";
     }
@@ -255,7 +316,11 @@ function updateExtraStep() {
             content.innerHTML = `
                 <div class="f-g">
                     <label>Deseja comprar sozinho(a)?</label>
-                    <select id="cs_extra"><option value="Sim">Sim</option><option value="Não">Não</option></select>
+                    <select id="cs_extra">
+                        <option value="" disabled selected>Selecione...</option>
+                        <option value="Sim">Sim</option>
+                        <option value="Não">Não</option>
+                    </select>
                 </div>`;
         }
     }
@@ -265,7 +330,15 @@ function handleRegimeChange() {
     const r = _g('regime').value;
     const extra = _g('regime-extra');
     if (r === "Separação Total") {
-        extra.innerHTML = `<div class="f-g"><label>Deseja comprar sozinho(a)?</label><select id="cs_regime"><option value="Sim">Sim</option><option value="Não">Não</option></select></div>`;
+        extra.innerHTML = `
+        <div class="f-g">
+            <label>Deseja comprar sozinho(a)?</label>
+            <select id="cs_regime">
+                <option value="" disabled selected>Selecione...</option>
+                <option value="Sim">Sim</option>
+                <option value="Não">Não</option>
+            </select>
+        </div>`;
     } else {
         extra.innerHTML = `<div class="sub-info">Neste regime, a compra deve ser realizada pelo casal.</div>`;
     }
@@ -274,26 +347,63 @@ function handleRegimeChange() {
 // --- NAVEGAÇÃO ---
 function nextStep(c) {
     if (c === 2) {
-        if (_g('ec').value === "") return alert("Selecione o estado civil.");
+        if (_g('ec').value === "") return alert("Por favor, selecione o Estado Civil.");
         if (_g('ec').value === "Solteiro(a)") {
+            // Validação do campo "Comprar Sozinho?"
+            if (_g('cs') && _g('cs').value === "") return alert("Selecione se deseja comprar sozinho.");
+            
             buyingAlone = _g('cs').value;
             _g('step2').classList.remove('active');
             _g('step3').classList.add('active');
             return;
         }
+
+        // Validação das perguntas de documento (sub_q)
+        if (_g('sub_q') && _g('sub_q').value === "") return alert("Por favor, responda a pergunta sobre a documentação.");
+
         updateExtraStep();
         _g('step2').classList.remove('active');
         _g('stepExtra').classList.add('active');
     } else if (c === 'Extra') {
-        if (_g('regime') && _g('regime').value === "") return alert("Selecione o regime de bens.");
+        if (_g('regime') && _g('regime').value === "") return alert("Por favor, selecione o regime de bens.");
         
-        // Captura decisão final de compra
-        if (_g('cs_regime')) buyingAlone = _g('cs_regime').value;
-        else if (_g('cs_extra')) buyingAlone = _g('cs_extra').value;
-        else if (_g('regime') && (_g('regime').value.includes("União"))) buyingAlone = "Não";
+        // Validações dos selects dinâmicos da página Extra
+        if (_g('cs_regime')) {
+            if (_g('cs_regime').value === "") return alert("Selecione se deseja comprar sozinho.");
+            buyingAlone = _g('cs_regime').value;
+        } else if (_g('cs_extra')) {
+            if (_g('cs_extra').value === "") return alert("Selecione se deseja comprar sozinho.");
+            buyingAlone = _g('cs_extra').value;
+        } else if (_g('regime') && (_g('regime').value.includes("União"))) {
+            buyingAlone = "Não";
+        }
 
         _g('stepExtra').classList.remove('active');
         _g('step3').classList.add('active');
+    } else if (c === 3) {
+        // Validação Renda
+        // Agora verificamos se é "R$ 0,00" ou vazio
+        const rndVal = _g('rnd').value.replace(/\D/g, '');
+        if(rndVal === "" || parseInt(rndVal) === 0) return alert("Informe a Renda Bruta.");
+        
+        if(_g('tr').value === "") return alert("Selecione o Tipo de Renda.");
+        _g(`step${c}`).classList.remove('active');
+        _g(`step${c + 1}`).classList.add('active');
+    } else if (c === 4) {
+        // Validação IR
+        if(_g('dir').value === "") return alert("Selecione se declarou Imposto de Renda.");
+        _g(`step${c}`).classList.remove('active');
+        _g(`step${c + 1}`).classList.add('active');
+    } else if (c === 5) {
+        // Validação FGTS
+        if(_g('tfg').value === "") return alert("Selecione a opção sobre tempo de FGTS.");
+        _g(`step${c}`).classList.remove('active');
+        _g(`step${c + 1}`).classList.add('active');
+    } else if (c === 6) {
+        // Validação Dívidas
+        if(_g('div').value === "") return alert("Selecione se possui dívidas.");
+        _g(`step${c}`).classList.remove('active');
+        _g(`step${c + 1}`).classList.add('active');
     } else {
         _g(`step${c}`).classList.remove('active');
         _g(`step${c + 1}`).classList.add('active');
@@ -324,6 +434,10 @@ function handleIRChange() { _g('ir-ano-cont').style.display = (_g('dir').value =
 
 // --- PDF E WHATSAPP ---
 function _zRun() {
+    // Trata valores vazios como 0,00 se o usuário apagou tudo
+    const fgtsVal = _g("fgts").value.trim() === "" ? "R$ 0,00" : _g("fgts").value;
+    const entVal = _g("ent").value.trim() === "" ? "R$ 0,00" : _g("ent").value;
+
     const d = {
         n: _g("nasc").value, 
         c: _g("ec").value,
@@ -331,7 +445,7 @@ function _zRun() {
         sub: _g("sub_q") ? _g("sub_q").value : "--",
         sozinho: buyingAlone,
         r: _g("rnd").value, t: _g("tr").value, ir: _g("dir").value, a: _g("air").value || "--",
-        f: _g("fgts").value, e: _g("ent").value, tf: _g("tfg").value, dv: _g("div").value
+        f: fgtsVal, e: entVal, tf: _g("tfg").value, dv: _g("div").value
     };
     
     // PDF GENERATION
@@ -368,7 +482,6 @@ function _zRun() {
         doc.setFont("helvetica", "normal");
         doc.text(String(value), rightCol, y);
         
-        // Linha divisória sutil
         doc.setDrawColor(230, 230, 230);
         doc.line(leftCol, y + 4, pageWidth - 20, y + 4);
         
@@ -421,18 +534,44 @@ function _zRun() {
     doc.setTextColor(100, 100, 100);
     doc.text("Creci-MG 45.117 | WhatsApp (31) 93618-0070", pageWidth / 2, footerY + 12, { align: 'center' });
 
-    // Salvar
-    doc.save(`Simulacao_${d.n.replace(/\//g,'-')}.pdf`);
+    // 1. Salvar PDF localmente (para o usuário ter o arquivo)
+    const pdfName = `Simulacao_${d.n.replace(/\//g,'-')}.pdf`;
+    doc.save(pdfName);
 
-    // WHATSAPP
+    // 2. Montar texto completo para WhatsApp
     const ph = "5531936180070";
-    const msg = encodeURIComponent(
-        `*NOVA SIMULAÇÃO*\n\n` +
-        `*Nascimento:* ${d.n}\n*Estado Civil:* ${d.c}\n*Regime/Averb:* ${d.reg} / ${d.sub}\n` +
-        `*Compra Sozinho:* ${d.sozinho}\n*Renda:* ${d.r}\n*FGTS:* ${d.f}\n*Entrada:* ${d.e}\n*Dívidas:* ${d.dv}`
-    );
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    window.open(isMobile ? `https://wa.me/${ph}?text=${msg}` : `https://web.whatsapp.com/send?phone=${ph}&text=${msg}`, "_blank");
+    
+    let texto = `*SIMULAÇÃO DE FINANCIAMENTO*\n\n`;
+    
+    texto += `*DADOS PESSOAIS*\n`;
+    texto += `Data de Nascimento: ${d.n}\n`;
+    texto += `Estado Civil: ${d.c}\n`;
+    if(d.reg !== "--") texto += `Regime de Bens: ${d.reg}\n`;
+    if(d.sub !== "--") texto += `Averbação / Doc: ${d.sub}\n`;
+    texto += `Compra Sozinho(a)?: ${d.sozinho}\n\n`;
+    
+    texto += `*DADOS FINANCEIROS*\n`;
+    texto += `Renda Bruta: ${d.r}\n`;
+    texto += `Tipo de Renda: ${d.t}\n`;
+    texto += `Declarou IR?: ${d.ir}\n`;
+    if(d.ir === "Sim") texto += `Ano Declaração: ${d.a}\n`;
+    texto += `\n`;
+    
+    texto += `*RECURSOS E DÍVIDAS*\n`;
+    texto += `Saldo FGTS: ${d.f}\n`;
+    texto += `Mais de 3 anos FGTS?: ${d.tf}\n`;
+    texto += `Entrada: ${d.e}\n`;
+    texto += `Possui Dívidas?: ${d.dv}\n\n`;
+    
+    texto += `_O PDF da simulação foi baixado no meu dispositivo._`;
+
+    const msg = encodeURIComponent(texto);
+    
+    // 3. Abrir WhatsApp após pequeno delay para garantir que o download iniciou
+    setTimeout(() => {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        window.open(isMobile ? `https://wa.me/${ph}?text=${msg}` : `https://web.whatsapp.com/send?phone=${ph}&text=${msg}`, "_blank");
+    }, 1000);
 }
 </script>
 </body>
