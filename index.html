@@ -9,7 +9,7 @@
         :root { --p: #0056b3; --w: #25D366; --b: #f4f4f9; --wh: #ffffff; --t: #333333; --e: #d9534f; --g: #6c757d; --warn: #ffc107; --warn-t: #856404; }
         * { box-sizing: border-box; outline: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--b); margin: 0; padding: 10px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; color: var(--t); }
-        .c { background: var(--wh); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,.08); width: 100%; max-width: 450px; min-height: 420px; display: flex; flex-direction: column; position: relative; margin-top: 10px; }
+        .c { background: var(--wh); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,.08); width: 100%; max-width: 450px; min-height: 420px; display: flex; flex-direction: column; position: relative; margin-top: 10px; padding-bottom: 60px; /* Espaço extra para o contador não cobrir conteúdo */ }
         h2 { text-align: center; margin: 0 0 20px 0; font-size: 1.1rem; color: #222; text-transform: uppercase; border-bottom: 2px solid #eee; padding-bottom: 15px; }
         .step { display: none; flex-direction: column; animation: fadeIn 0.3s ease; }
         .step.active { display: flex; }
@@ -34,21 +34,23 @@
         /* Estilo do Contador Online */
         .online-badge {
             position: fixed;
-            top: 15px;
-            right: 15px;
+            bottom: 20px; /* Mudou de top para bottom */
+            left: 50%; /* Centraliza horizontalmente */
+            transform: translateX(-50%); /* Ajuste fino do centro */
             background: rgba(255, 255, 255, 0.95);
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            font-size: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-size: 0.85rem;
             font-weight: 600;
-            color: #555;
-            z-index: 1000;
-            display: none; /* Inicia oculto até carregar */
+            color: #333;
+            z-index: 9999;
+            display: flex; 
             align-items: center;
-            gap: 6px;
-            border: 1px solid #eee;
+            gap: 8px;
+            border: 1px solid #e0e0e0;
             backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
         }
         .online-dot {
             width: 8px;
@@ -70,7 +72,7 @@
 
 <!-- Contador de Usuários Online -->
 <div id="online-counter" class="online-badge">
-    <span class="online-dot"></span> <span id="online-count">...</span> online
+    <span class="online-dot"></span> <span id="online-count">Conectando...</span>
 </div>
 
 <div class="c">
@@ -670,15 +672,21 @@ function _zRun() {
                     return data.last_seen && (data.last_seen > (now - 20000));
                 }).length;
                 
-                const badge = document.getElementById('online-counter');
                 const countSpan = document.getElementById('online-count');
                 
-                if(badge && countSpan) {
-                    countSpan.innerText = count;
-                    badge.style.display = 'flex'; // Torna visível após carregar
+                if(countSpan) {
+                    // Texto singular/plural
+                    const label = count === 1 ? ' pessoa online' : ' pessoas online';
+                    countSpan.innerText = count + label;
+                    
+                    // Feedback visual quando atualiza (opcional, mas legal)
+                    const badge = document.getElementById('online-counter');
+                    if(badge) badge.style.borderColor = '#25D366';
                 }
             }, (error) => {
                 console.error("Erro ao sincronizar usuários:", error);
+                const countSpan = document.getElementById('online-count');
+                if(countSpan) countSpan.innerText = "Offline";
             });
         });
     }
