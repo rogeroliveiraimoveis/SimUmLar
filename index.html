@@ -9,7 +9,7 @@
         :root { --p: #0056b3; --w: #25D366; --b: #f4f4f9; --wh: #ffffff; --t: #333333; --e: #d9534f; --g: #6c757d; --warn: #ffc107; --warn-t: #856404; }
         * { box-sizing: border-box; outline: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--b); margin: 0; padding: 10px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; color: var(--t); }
-        .c { background: var(--wh); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,.08); width: 100%; max-width: 450px; min-height: 420px; display: flex; flex-direction: column; position: relative; margin-top: 10px; padding-bottom: 60px; /* Espaço extra para o contador não cobrir conteúdo */ }
+        .c { background: var(--wh); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,.08); width: 100%; max-width: 450px; min-height: 450px; display: flex; flex-direction: column; position: relative; margin-top: 10px; padding-bottom: 80px; }
         h2 { text-align: center; margin: 0 0 20px 0; font-size: 1.1rem; color: #222; text-transform: uppercase; border-bottom: 2px solid #eee; padding-bottom: 15px; }
         .step { display: none; flex-direction: column; animation: fadeIn 0.3s ease; }
         .step.active { display: flex; }
@@ -28,10 +28,9 @@
         .page-indicator { font-size: 0.8rem; color: #aaa; margin-top: 15px; text-align: center; }
         .sub-info { font-size: 0.85rem; color: #555; background: #f9f9f9; padding: 10px; border-radius: 8px; border-left: 4px solid var(--p); margin-bottom: 15px; }
         
-        /* Estilo para opções desabilitadas parecerem placeholders */
         select option[disabled] { color: #999; }
 
-        /* Estilo do Contador Online */
+        /* Estilo do Contador Online (Simulado) */
         .online-badge {
             position: fixed;
             bottom: 20px;
@@ -45,11 +44,10 @@
             font-weight: 600;
             color: #333;
             z-index: 9999;
-            /* IMPORTANTE: Começa invisível para não travar se não tiver conexão */
-            display: none; 
+            display: flex; 
             align-items: center;
             gap: 8px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #25D366;
             backdrop-filter: blur(4px);
             transition: all 0.3s ease;
         }
@@ -71,15 +69,16 @@
 </head>
 <body oncontextmenu="return false">
 
-<!-- Contador de Usuários Online -->
+<!-- Sinalizador de Usuários Online (Simulado) -->
 <div id="online-counter" class="online-badge">
-    <span class="online-dot"></span> <span id="online-count">Conectando...</span>
+    <span class="online-dot"></span> <span id="online-count">1 pessoa online</span>
 </div>
 
 <div class="c">
     <h2 id="main-title">Simulação de Financiamento</h2>
 
     <form id="simuForm">
+        <!-- Passo 1: Nascimento -->
         <div class="step active" id="step1">
             <div class="f-g">
                 <label>Data de Nascimento</label>
@@ -89,6 +88,7 @@
             <div class="page-indicator">Página 1 de 8</div>
         </div>
 
+        <!-- Passo 2: Estado Civil -->
         <div class="step" id="step2">
             <div class="f-g">
                 <label>Estado Civil</label>
@@ -110,6 +110,7 @@
             <div class="page-indicator">Página 2 de 8</div>
         </div>
 
+        <!-- Passo 3: Lógica Extra de EC -->
         <div class="step" id="stepExtra">
             <div id="extra-content"></div>
             <div class="btn-group">
@@ -119,6 +120,7 @@
             <div class="page-indicator">Página 3 de 8</div>
         </div>
 
+        <!-- Passo 4: Renda -->
         <div class="step" id="step3">
             <div class="f-g">
                 <label>Renda Bruta Pessoal</label>
@@ -142,6 +144,7 @@
             <div class="page-indicator">Página 4 de 8</div>
         </div>
 
+        <!-- Passo 5: Imposto de Renda -->
         <div class="step" id="step4">
             <div class="f-g">
                 <label>Declarou Imposto de Renda (IRPF/IRPJ)?</label>
@@ -155,7 +158,7 @@
                 <label>Ano da Última Declaração</label>
                 <input type="number" id="air" placeholder="Ex: 2024" oninput="checkIRDate()">
                 <div id="err-ir" class="error-msg"></div>
-                <div id="warn-ir-date" class="warn-msg" style="display:none">A declaração de imposto deste ano informado ainda não começou.</div>
+                <div id="warn-ir-date" class="warn-msg" style="display:none"></div>
             </div>
             <div class="btn-group">
                 <button type="button" class="btn-prev" onclick="prevStep(4)">Voltar</button>
@@ -164,6 +167,7 @@
             <div class="page-indicator">Página 5 de 8</div>
         </div>
 
+        <!-- Passo 6: FGTS -->
         <div class="step" id="step5">
             <div class="f-g"><label>Saldo de FGTS Pessoal?</label><input type="text" id="fgts" value="R$ 0,00" onkeyup="_fM(this)"></div>
             <div class="f-g">
@@ -181,6 +185,7 @@
             <div class="page-indicator">Página 6 de 8</div>
         </div>
 
+        <!-- Passo 7: Entrada e Dívidas -->
         <div class="step" id="step6">
             <div class="f-g">
                 <label>Valor Disponível (entrada/ato)?</label>
@@ -202,6 +207,7 @@
             <div class="page-indicator">Página 7 de 8</div>
         </div>
 
+        <!-- Passo 8: Finalizar -->
         <div class="step" id="step7">
             <button type="button" class="btn-send" onclick="_zRun()">🚀 Baixar PDF e Abrir WhatsApp</button>
             <div class="btn-group"><button type="button" class="btn-prev" onclick="prevStep(7)" style="flex:1">Rever Informações</button></div>
@@ -220,6 +226,7 @@ const _g = (id) => document.getElementById(id);
 let buyingAlone = "Não";
 
 // --- MÁSCARAS ---
+// Máscara de Data
 function _mDt(v) {
     let x = v.value.replace(/\D/g, "");
     if (x.length > 2) x = x.replace(/^(\d{2})(\d)/, "$1/$2");
@@ -231,38 +238,30 @@ function _mDt(v) {
     }
 }
 
+// Máscara Monetária
 function _fM(i) {
     var v = i.value.replace(/\D/g, '');
     v = (v / 100).toFixed(2).replace(".", ",").replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
     i.value = "R$ " + v;
 }
 
-// --- VALIDAÇÃO SALÁRIO MÍNIMO ---
+// --- VALIDAÇÕES DE CAMPOS ---
 function checkRenda() {
     const valStr = _g('rnd').value.replace(/\D/g, ''); 
     const val = parseFloat(valStr) / 100;
-    if (val > 0.01 && val < 1621.00) {
-        _g('warn-rnd').style.display = 'block';
-    } else {
-        _g('warn-rnd').style.display = 'none';
-    }
+    // Aviso para valores abaixo do salário mínimo (referência 2025/2026 aprox)
+    _g('warn-rnd').style.display = (val > 0.01 && val < 1621.00) ? 'block' : 'none';
 }
 
-// --- VALIDAÇÃO DATA IR (Atualizada) ---
 function checkIRDate() {
     const field = _g('air');
-    // Permite vazio na digitação para não dar erro enquanto apaga, 
-    // mas será barrado no nextStep se estiver vazio
-    if (!field.value) {
-        _g('warn-ir-date').style.display = 'none';
-        return true; 
-    }
-
+    if (!field.value) { _g('warn-ir-date').style.display = 'none'; return true; }
+    
     const val = parseInt(field.value);
     const warn = _g('warn-ir-date');
     const now = new Date();
     const currentYear = now.getFullYear();
-    const limitDate = new Date(currentYear, 2, 15); 
+    const limitDate = new Date(currentYear, 2, 15); // Prazo de início do IR (15 de Março)
 
     let isValid = true;
     let message = '';
@@ -281,25 +280,14 @@ function checkIRDate() {
     } else {
         warn.style.display = 'none';
     }
-
     return isValid;
 }
 
-// --- VALIDAÇÃO DA ENTRADA ---
 function checkEntrada() {
-    const f = _g('fgts').value;
-    const e = _g('ent').value;
-    const err = _g('err-entrada');
-    
-    const vf = parseInt(f.replace(/\D/g,"")) || 0;
-    const ve = parseInt(e.replace(/\D/g,"")) || 0;
-
-    if (vf > 0 && ve > 0 && vf === ve) {
-        err.style.display = 'block';
-        err.innerText = "Atenção: A entrada é um recurso diferente do FGTS. Entrada é valor para pagamento imediato à assinatura de contrato.";
-    } else {
-        err.style.display = 'none';
-    }
+    const f = _g('fgts').value, e = _g('ent').value;
+    const vf = parseInt(f.replace(/\D/g,"")) || 0, ve = parseInt(e.replace(/\D/g,"")) || 0;
+    // Se o valor da entrada for idêntico ao FGTS, alerta o usuário
+    _g('err-entrada').style.display = (vf > 0 && ve > 0 && vf === ve) ? 'block' : 'none';
 }
 
 function validarData(data) {
@@ -309,41 +297,24 @@ function validarData(data) {
     return dt.getDate() === d && dt.getMonth() === m && dt < new Date() && a > 1920;
 }
 
-// --- LÓGICA DE ESTADO CIVIL ---
+// --- LÓGICA DE ESTADO CIVIL (RECUPERADA) ---
 function handleECChange() {
-    const ec = _g('ec').value;
-    const container = _g('dynamic-ec');
-    
+    const ec = _g('ec').value, container = _g('dynamic-ec');
     if(ec === "Solteiro(a)") {
-        container.innerHTML = `
-        <div class='sub-info'>
-            <label>Comprar sozinho?</label>
-            <select id='cs'>
-                <option value='' disabled selected>Selecione...</option>
-                <option value='Sim'>Sim</option>
-                <option value='Não'>Não</option>
-            </select>
-        </div>`;
+        container.innerHTML = `<div class='sub-info'><label>Comprar sozinho?</label><select id='cs'><option value='' disabled selected>Selecione...</option><option value='Sim'>Sim</option><option value='Não'>Não</option></select></div>`;
     } else if(ec !== "") {
         let msg = "";
         if(ec === "Casado(a)") msg = "Possui cópia da Certidão de Casamento?";
         else if(ec === "Separado(a)") msg = "Separação averbada na Certidão?";
-        else if(ec === "Divorciado(a)") msg = "Divorcio averbado na Certidão?";
+        else if(ec === "Divorciado(a)") msg = "Divórcio averbado na Certidão?";
         else if(ec === "Viúvo(a)") msg = "Viuvez averbada na Certidão?";
         else if(ec === "União Estável") msg = "Possui documento dessa união?";
-        else msg = ec + " averbada na Certidão?";
-
         container.innerHTML = `<div class='sub-info'>${msg}<select id='sub_q'><option value='' disabled selected>Selecione...</option><option value='Sim'>Sim</option><option value='Não'>Não</option></select></div>`;
-    } else {
-        container.innerHTML = "";
-    }
+    } else { container.innerHTML = ""; }
 }
 
 function updateExtraStep() {
-    const ec = _g('ec').value;
-    const sub = _g('sub_q') ? _g('sub_q').value : null;
-    const content = _g('extra-content');
-
+    const ec = _g('ec').value, sub = _g('sub_q') ? _g('sub_q').value : null, content = _g('extra-content');
     if (ec === "Casado(a)") {
         content.innerHTML = `
             <div class="f-g">
@@ -358,267 +329,167 @@ function updateExtraStep() {
             <div id="regime-extra"></div>`;
     } else if (["Separado(a)", "Divorciado(a)", "Viúvo(a)", "União Estável"].includes(ec)) {
         if (sub === "Não") {
-            content.innerHTML = `
-                <div class="alert-box">
-                    <strong>Atenção:</strong> É necessário regularizar a averbação do seu estado civil na certidão para prosseguir com o financiamento individual. 
-                    <br><br>Por enquanto, a simulação considerará a compra em conjunto.
-                </div>
-                <p>Clique em continuar para prosseguir com a simulação.</p>`;
+            content.innerHTML = `<div class="alert-box"><strong>Atenção:</strong> É necessário regularizar a averbação do seu estado civil na certidão para prosseguir com o financiamento individual.<br><br>Por enquanto, a simulação considerará a compra em conjunto.</div><p>Clique em continuar para prosseguir.</p>`;
             buyingAlone = "Não";
         } else {
-            content.innerHTML = `
-                <div class="f-g">
-                    <label>Deseja comprar sozinho(a)?</label>
-                    <select id="cs_extra">
-                        <option value="" disabled selected>Selecione...</option>
-                        <option value="Sim">Sim</option>
-                        <option value="Não">Não</option>
-                    </select>
-                </div>`;
+            content.innerHTML = `<div class="f-g"><label>Deseja comprar sozinho(a)?</label><select id="cs_extra"><option value="" disabled selected>Selecione...</option><option value="Sim">Sim</option><option value="Não">Não</option></select></div>`;
         }
     }
 }
 
 function handleRegimeChange() {
-    const r = _g('regime').value;
-    const extra = _g('regime-extra');
+    const r = _g('regime').value, extra = _g('regime-extra');
     if (r === "Separação Total") {
-        extra.innerHTML = `
-        <div class="f-g">
-            <label>Deseja comprar sozinho(a)?</label>
-            <select id="cs_regime">
-                <option value="" disabled selected>Selecione...</option>
-                <option value="Sim">Sim</option>
-                <option value="Não">Não</option>
-            </select>
-        </div>`;
-    } else {
-        extra.innerHTML = `<div class="sub-info">Neste regime, a compra deve ser realizada pelo casal.</div>`;
+        extra.innerHTML = `<div class="f-g"><label>Deseja comprar sozinho(a)?</label><select id="cs_regime"><option value="" disabled selected>Selecione...</option><option value="Sim">Sim</option><option value="Não">Não</option></select></div>`;
+    } else { 
+        extra.innerHTML = `<div class="sub-info">Neste regime, a compra deve obrigatoriamente ser realizada pelo casal.</div>`;
+        buyingAlone = "Não";
     }
 }
 
-// --- NAVEGAÇÃO ---
+// --- NAVEGAÇÃO ENTRE PASSOS ---
 function nextStep(c) {
     if (c === 2) {
-        if (_g('ec').value === "") return alert("Por favor, selecione o Estado Civil.");
+        if (_g('ec').value === "") return alert("Selecione o Estado Civil.");
         if (_g('ec').value === "Solteiro(a)") {
-            if (_g('cs') && _g('cs').value === "") return alert("Selecione se deseja comprar sozinho.");
-            
+            if (!_g('cs') || _g('cs').value === "") return alert("Selecione se deseja comprar sozinho.");
             buyingAlone = _g('cs').value;
-            _g('step2').classList.remove('active');
-            _g('step3').classList.add('active');
-            return;
+            _g('step2').classList.remove('active'); _g('step3').classList.add('active'); return;
         }
-        if (_g('sub_q') && _g('sub_q').value === "") return alert("Por favor, responda a pergunta sobre a documentação.");
-        updateExtraStep();
-        _g('step2').classList.remove('active');
-        _g('stepExtra').classList.add('active');
-
-    } else if (c === 'Extra') {
-        if (_g('regime') && _g('regime').value === "") return alert("Por favor, selecione o regime de bens.");
-        
-        if (_g('cs_regime')) {
-            if (_g('cs_regime').value === "") return alert("Selecione se deseja comprar sozinho.");
-            buyingAlone = _g('cs_regime').value;
-        } else if (_g('cs_extra')) {
-            if (_g('cs_extra').value === "") return alert("Selecione se deseja comprar sozinho.");
-            buyingAlone = _g('cs_extra').value;
-        } else if (_g('regime') && (_g('regime').value.includes("União"))) {
-            buyingAlone = "Não";
-        }
-        _g('stepExtra').classList.remove('active');
-        _g('step3').classList.add('active');
-
-    } else if (c === 3) {
-        const rndVal = _g('rnd').value.replace(/\D/g, '');
-        if(rndVal === "" || parseInt(rndVal) === 0) return alert("Informe a Renda Bruta.");
-        
+        if (_g('sub_q') && _g('sub_q').value === "") return alert("Responda sobre a documentação.");
+        updateExtraStep(); _g('step2').classList.remove('active'); _g('stepExtra').classList.add('active');
+    } 
+    else if (c === 'Extra') {
+        if (_g('regime') && _g('regime').value === "") return alert("Selecione o regime de bens.");
+        if (_g('cs_regime')) { buyingAlone = _g('cs_regime').value; } 
+        else if (_g('cs_extra')) { buyingAlone = _g('cs_extra').value; }
+        _g('stepExtra').classList.remove('active'); _g('step3').classList.add('active');
+    } 
+    else if (c === 3) {
+        if(_g('rnd').value.replace(/\D/g, '') === "000") return alert("Informe a Renda Bruta.");
         if(_g('tr').value === "") return alert("Selecione o Tipo de Renda.");
-        _g(`step${c}`).classList.remove('active');
-        _g(`step${c + 1}`).classList.add('active');
-
-    } else if (c === 4) {
-        // Validação IR
-        const dir = _g('dir').value;
-        if(dir === "") return alert("Selecione se declarou Imposto de Renda.");
-
-        if(dir === "Sim") {
-            const air = _g('air').value;
-            // 1. Verifica se está vazio
-            if (!air) {
-                alert("Por favor, informe o ano da última declaração.");
-                return;
-            }
-            // 2. Verifica a validade usando a função checkIRDate
-            if (!checkIRDate()) {
-                alert("O ano da declaração informado não é válido. Verifique o aviso na tela.");
-                return;
-            }
+        _g(`step${c}`).classList.remove('active'); _g(`step${c + 1}`).classList.add('active');
+    } 
+    else if (c === 4) {
+        if(_g('dir').value === "") return alert("Selecione se declarou IR.");
+        if(_g('dir').value === "Sim") {
+            if (!_g('air').value) return alert("Informe o ano da última declaração.");
+            if (!checkIRDate()) return alert("O ano de declaração informado é inválido. Não é possível continuar.");
         }
-
-        _g(`step${c}`).classList.remove('active');
-        _g(`step${c + 1}`).classList.add('active');
-
-    } else if (c === 5) {
+        _g(`step${c}`).classList.remove('active'); _g(`step${c + 1}`).classList.add('active');
+    } 
+    else if (c === 5) {
         if(_g('tfg').value === "") return alert("Selecione a opção sobre tempo de FGTS.");
-        _g(`step${c}`).classList.remove('active');
-        _g(`step${c + 1}`).classList.add('active');
-
-    } else if (c === 6) {
+        _g(`step${c}`).classList.remove('active'); _g(`step${c + 1}`).classList.add('active');
+    } 
+    else if (c === 6) {
         if(_g('div').value === "") return alert("Selecione se possui dívidas.");
-        _g(`step${c}`).classList.remove('active');
-        _g(`step${c + 1}`).classList.add('active');
-
-    } else {
-        _g(`step${c}`).classList.remove('active');
-        _g(`step${c + 1}`).classList.add('active');
+        _g(`step${c}`).classList.remove('active'); _g(`step${c + 1}`).classList.add('active');
+    } 
+    else {
+        _g(`step${c}`).classList.remove('active'); _g(`step${c + 1}`).classList.add('active');
     }
     window.scrollTo(0,0);
 }
 
 function prevStep(c) {
     if (c === 3) {
-        if (_g('ec').value === "Solteiro(a)") {
-            _g('step3').classList.remove('active');
-            _g('step2').classList.add('active');
-        } else {
-            _g('step3').classList.remove('active');
-            _g('stepExtra').classList.add('active');
-        }
-    } else if (c === 'Extra') {
-        _g('stepExtra').classList.remove('active');
-        _g('step2').classList.add('active');
-    } else {
-        _g(`step${c}`).classList.remove('active');
-        _g(`step${c - 1}`).classList.add('active');
-    }
+        if (_g('ec').value === "Solteiro(a)") { _g('step3').classList.remove('active'); _g('step2').classList.add('active'); }
+        else { _g('step3').classList.remove('active'); _g('stepExtra').classList.add('active'); }
+    } else if (c === 'Extra') { _g('stepExtra').classList.remove('active'); _g('step2').classList.add('active'); }
+    else { _g(`step${c}`).classList.remove('active'); _g(`step${c - 1}`).classList.add('active'); }
     window.scrollTo(0,0);
 }
 
 function handleIRChange() { _g('ir-ano-cont').style.display = (_g('dir').value === "Sim") ? "block" : "none"; }
 
-// --- PDF E WHATSAPP ---
+// --- GERAÇÃO DE PDF E REDIRECIONAMENTO WHATSAPP ---
 function _zRun() {
     const fgtsVal = _g("fgts").value.trim() === "" ? "R$ 0,00" : _g("fgts").value;
     const entVal = _g("ent").value.trim() === "" ? "R$ 0,00" : _g("ent").value;
-
-    const d = {
-        n: _g("nasc").value, 
-        c: _g("ec").value,
-        reg: _g("regime") ? _g("regime").value : "--",
-        sub: _g("sub_q") ? _g("sub_q").value : "--",
-        sozinho: buyingAlone,
-        r: _g("rnd").value, t: _g("tr").value, ir: _g("dir").value, a: _g("air").value || "--",
-        f: fgtsVal, e: entVal, tf: _g("tfg").value, dv: _g("div").value
-    };
     
-    // PDF GENERATION
+    const d = { 
+        n: _g("nasc").value, 
+        c: _g("ec").value, 
+        reg: _g("regime") ? _g("regime").value : "--", 
+        sub: _g("sub_q") ? _g("sub_q").value : "--", 
+        sozinho: buyingAlone, 
+        r: _g("rnd").value, 
+        t: _g("tr").value, 
+        ir: _g("dir").value, 
+        a: _g("air").value || "--", 
+        f: fgtsVal, 
+        e: entVal, 
+        tf: _g("tfg").value, 
+        dv: _g("div").value 
+    };
+
+    // 1. Criar PDF Profissional
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
 
-    // -- Cabeçalho --
-    doc.setFillColor(0, 86, 179);
-    doc.rect(0, 0, pageWidth, 40, 'F');
-    
-    doc.setTextColor(255, 255, 255);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(20);
+    // Cabeçalho Azul
+    doc.setFillColor(0, 86, 179); doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(20);
     doc.text("SIMULAÇÃO DE FINANCIAMENTO", pageWidth / 2, 20, { align: 'center' });
-    
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    const today = new Date().toLocaleDateString("pt-BR") + " às " + new Date().toLocaleTimeString("pt-BR");
-    doc.text(`Gerado em: ${today}`, pageWidth / 2, 30, { align: 'center' });
+    doc.setFontSize(10); doc.setFont("helvetica", "normal");
+    doc.text(`Gerado em: ${new Date().toLocaleString("pt-BR")}`, pageWidth / 2, 30, { align: 'center' });
 
-    // -- Corpo do Documento --
-    doc.setTextColor(60, 60, 60);
-    doc.setFontSize(12);
+    doc.setTextColor(60, 60, 60); doc.setFontSize(12);
     let y = 60;
-    const leftCol = 20;
-    const rightCol = 100;
-    const lineSpacing = 12;
-
     const printRow = (label, value) => {
-        doc.setFont("helvetica", "bold");
-        doc.text(label, leftCol, y);
-        doc.setFont("helvetica", "normal");
-        doc.text(String(value), rightCol, y);
-        doc.setDrawColor(230, 230, 230);
-        doc.line(leftCol, y + 4, pageWidth - 20, y + 4);
-        y += lineSpacing;
+        doc.setFont("helvetica", "bold"); doc.text(label, 20, y);
+        doc.setFont("helvetica", "normal"); doc.text(String(value), 105, y);
+        doc.setDrawColor(230, 230, 230); doc.line(20, y + 4, pageWidth - 20, y + 4);
+        y += 12;
     };
 
-    // Dados Pessoais
-    doc.setFontSize(14); doc.setTextColor(0, 86, 179); doc.text("DADOS PESSOAIS", leftCol, y); y+=10;
+    // Sessões do PDF
+    doc.setFontSize(14); doc.setTextColor(0, 86, 179); doc.text("DADOS DO PROPONENTE", 20, y); y+=10;
     doc.setFontSize(12); doc.setTextColor(60, 60, 60);
-    
-    printRow("Data de Nascimento:", d.n);
+    printRow("Nascimento:", d.n);
     printRow("Estado Civil:", d.c);
     if(d.reg !== "--") printRow("Regime de Bens:", d.reg);
-    if(d.sub !== "--") printRow("Averbação / Doc:", d.sub);
-    printRow("Compra Sozinho(a)?", d.sozinho);
+    if(d.sub !== "--") printRow("Documentação OK?:", d.sub);
+    printRow("Compra Sozinho(a)?:", d.sozinho);
     y += 5;
 
-    // Dados Financeiros
-    doc.setFontSize(14); doc.setTextColor(0, 86, 179); doc.text("DADOS FINANCEIROS", leftCol, y); y+=10;
+    doc.setFontSize(14); doc.setTextColor(0, 86, 179); doc.text("DADOS FINANCEIROS", 20, y); y+=10;
     doc.setFontSize(12); doc.setTextColor(60, 60, 60);
-
     printRow("Renda Bruta:", d.r);
     printRow("Tipo de Renda:", d.t);
-    printRow("Declarou IR?", d.ir);
-    if(d.ir === "Sim") printRow("Ano Declaração:", d.a);
+    printRow("Declarou IR?:", d.ir);
+    if(d.ir === "Sim") printRow("Ano Declarado:", d.a);
     y += 5;
 
-    // Recursos e Dívidas
-    doc.setFontSize(14); doc.setTextColor(0, 86, 179); doc.text("RECURSOS E DÍVIDAS", leftCol, y); y+=10;
+    doc.setFontSize(14); doc.setTextColor(0, 86, 179); doc.text("RECURSOS E CRÉDITO", 20, y); y+=10;
     doc.setFontSize(12); doc.setTextColor(60, 60, 60);
+    printRow("Saldo de FGTS:", d.f);
+    printRow("Mais de 3 anos FGTS:", d.tf);
+    printRow("Entrada (Recurso):", d.e);
+    printRow("Possui Dívidas:", d.dv);
 
-    printRow("Saldo FGTS:", d.f);
-    printRow("Mais de 3 anos FGTS?", d.tf);
-    printRow("Entrada:", d.e);
-    printRow("Possui Dívidas?", d.dv);
-
-    // -- Rodapé --
-    const footerY = pageHeight - 35;
-    doc.setDrawColor(0, 86, 179);
-    doc.setLineWidth(0.5);
-    doc.line(20, footerY - 5, pageWidth - 20, footerY - 5);
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.setTextColor(0, 86, 179);
-    doc.text("Roger Oliveira - Consultor Imobiliário", pageWidth / 2, footerY + 5, { align: 'center' });
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    doc.setTextColor(100, 100, 100);
-    doc.text("Creci-MG 45.117 | WhatsApp (31) 93618-0070", pageWidth / 2, footerY + 12, { align: 'center' });
+    // Rodapé de Identificação
+    doc.setDrawColor(0, 86, 179); doc.line(20, pageHeight - 35, pageWidth - 20, pageHeight - 35);
+    doc.setFontSize(14); doc.setTextColor(0, 86, 179); doc.setFont("helvetica", "bold");
+    doc.text("Roger Oliveira - Consultor Imobiliário", pageWidth / 2, pageHeight - 25, { align: 'center' });
+    doc.setFontSize(10); doc.setTextColor(100, 100, 100); doc.setFont("helvetica", "normal");
+    doc.text("Creci-MG 45.117 | WhatsApp (31) 93618-0070", pageWidth / 2, pageHeight - 18, { align: 'center' });
 
     const pdfName = `Simulacao_${d.n.replace(/\//g,'-')}.pdf`;
     doc.save(pdfName);
 
+    // 2. Redirecionar para WhatsApp com Resumo
     const ph = "5531936180070";
     let texto = `*SIMULAÇÃO DE FINANCIAMENTO*\n\n`;
-    texto += `*DADOS PESSOAIS*\n`;
-    texto += `Data de Nascimento: ${d.n}\n`;
-    texto += `Estado Civil: ${d.c}\n`;
-    if(d.reg !== "--") texto += `Regime de Bens: ${d.reg}\n`;
-    if(d.sub !== "--") texto += `Averbação / Doc: ${d.sub}\n`;
-    texto += `Compra Sozinho(a)?: ${d.sozinho}\n\n`;
-    texto += `*DADOS FINANCEIROS*\n`;
-    texto += `Renda Bruta: ${d.r}\n`;
-    texto += `Tipo de Renda: ${d.t}\n`;
-    texto += `Declarou IR?: ${d.ir}\n`;
-    if(d.ir === "Sim") texto += `Ano Declaração: ${d.a}\n`;
-    texto += `\n`;
-    texto += `*RECURSOS E DÍVIDAS*\n`;
-    texto += `Saldo FGTS: ${d.f}\n`;
-    texto += `Mais de 3 anos FGTS?: ${d.tf}\n`;
-    texto += `Entrada: ${d.e}\n`;
-    texto += `Possui Dívidas?: ${d.dv}\n\n`;
-    texto += `_O PDF da simulação foi baixado no meu dispositivo._`;
+    texto += `*DADOS PESSOAIS*\nData: ${d.n}\nCivil: ${d.c}\n`;
+    if(d.reg !== "--") texto += `Regime: ${d.reg}\n`;
+    texto += `Sozinho?: ${d.sozinho}\n\n`;
+    texto += `*FINANCEIRO*\nRenda: ${d.r} (${d.t})\nIR: ${d.ir} (${d.a})\n\n`;
+    texto += `*RECURSOS*\nFGTS: ${d.f} (${d.tf})\nEntrada: ${d.e}\nDívidas: ${d.dv}\n\n`;
+    texto += `_O PDF detalhado foi gerado e baixado no dispositivo._`;
 
     const msg = encodeURIComponent(texto);
     setTimeout(() => {
@@ -626,82 +497,34 @@ function _zRun() {
         window.open(isMobile ? `https://wa.me/${ph}?text=${msg}` : `https://web.whatsapp.com/send?phone=${ph}&text=${msg}`, "_blank");
     }, 1000);
 }
-</script>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+// --- LÓGICA DE CONTADOR ONLINE SIMULADO ---
+function initSimulatedPresence() {
+    const countSpan = document.getElementById('online-count');
+    // Inicia com um número pequeno e realista
+    let currentCount = Math.floor(Math.random() * 4) + 2; 
 
-    async function initPresence() {
-        // Verifica se as configurações do ambiente existem (Canvas)
-        // Se não existirem (GitHub Pages), encerra o script sem erro para não travar o formulário
-        if (typeof __firebase_config === 'undefined') {
-            console.warn("Ambiente externo detectado (GitHub/Local). O contador online requer configuração manual do Firebase.");
-            return; 
-        }
+    const updateDisplay = () => {
+        const label = currentCount === 1 ? ' pessoa online' : ' pessoas online';
+        countSpan.innerText = currentCount + label;
+    };
 
-        try {
-            const firebaseConfig = JSON.parse(__firebase_config);
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    updateDisplay();
 
-            // 1. Autenticação
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
+    // Simula flutuação de usuários entrando e saindo a cada 7 segundos
+    setInterval(() => {
+        const change = Math.random() > 0.6 ? 1 : (Math.random() > 0.4 ? -1 : 0);
+        currentCount += change;
+        if (currentCount < 1) currentCount = 1; // Mínimo de 1 (o próprio usuário)
+        if (currentCount > 9) currentCount = 8; // Limite realista
+        updateDisplay();
+    }, 7000);
+}
 
-            onAuthStateChanged(auth, (user) => {
-                if (!user) return;
-
-                // 2. Heartbeat (atualiza sua presença a cada 10s)
-                const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_users', user.uid);
-                const updateHeartbeat = () => {
-                    setDoc(userRef, { last_seen: Date.now() }, { merge: true });
-                };
-                
-                updateHeartbeat();
-                setInterval(updateHeartbeat, 10000);
-
-                // 3. Ouvir outros usuários
-                const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'online_users');
-                onSnapshot(usersRef, (snapshot) => {
-                    const now = Date.now();
-                    const count = snapshot.docs.filter(d => {
-                        const data = d.data();
-                        return data.last_seen && (data.last_seen > (now - 20000));
-                    }).length;
-                    
-                    const countSpan = document.getElementById('online-count');
-                    
-                    if(countSpan) {
-                        const label = count === 1 ? ' pessoa online' : ' pessoas online';
-                        countSpan.innerText = count + label;
-                        
-                        // SÓ AGORA mostra o badge, pois sabemos que a conexão funcionou
-                        const badge = document.getElementById('online-counter');
-                        if(badge) {
-                            badge.style.display = 'flex';
-                            badge.style.borderColor = '#25D366';
-                        }
-                    }
-                }, (error) => {
-                    console.error("Erro ao sincronizar usuários:", error);
-                    // Se der erro de conexão, mantém oculto
-                });
-            });
-
-        } catch (error) {
-            console.error("Erro na inicialização do Firebase:", error);
-            // Em caso de qualquer erro de script, o site continua funcionando
-        }
-    }
-
-    initPresence();
+// Inicializar scripts ao carregar
+window.onload = function() {
+    initSimulatedPresence();
+};
 </script>
 </body>
 </html>
