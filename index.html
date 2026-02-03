@@ -30,9 +30,48 @@
         
         /* Estilo para opções desabilitadas parecerem placeholders */
         select option[disabled] { color: #999; }
+
+        /* Estilo do Contador Online */
+        .online-badge {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 6px 12px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #555;
+            z-index: 1000;
+            display: none; /* Inicia oculto até carregar */
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #eee;
+            backdrop-filter: blur(4px);
+        }
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #25D366;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 2px rgba(37, 211, 102, 0.2);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 4px rgba(37, 211, 102, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
     </style>
 </head>
 <body oncontextmenu="return false">
+
+<!-- Contador de Usuários Online -->
+<div id="online-counter" class="online-badge">
+    <span class="online-dot"></span> <span id="online-count">...</span> online
+</div>
 
 <div class="c">
     <h2 id="main-title">Simulação de Financiamento</h2>
@@ -197,11 +236,8 @@ function _fM(i) {
 
 // --- VALIDAÇÃO SALÁRIO MÍNIMO ---
 function checkRenda() {
-    const valStr = _g('rnd').value.replace(/\D/g, ''); // Remove R$, pontos e virgulas
-    // O formato é "R$ 1.000,00" -> replace deixa "100000" -> divide por 100 -> 1000.00
+    const valStr = _g('rnd').value.replace(/\D/g, ''); 
     const val = parseFloat(valStr) / 100;
-
-    // Ajuste: Só mostra erro se for MAIOR que 0 e MENOR que 1621
     if (val > 0.01 && val < 1621.00) {
         _g('warn-rnd').style.display = 'block';
     } else {
@@ -209,27 +245,41 @@ function checkRenda() {
     }
 }
 
-// --- VALIDAÇÃO DATA IR ---
+// --- VALIDAÇÃO DATA IR (Atualizada) ---
 function checkIRDate() {
     const field = _g('air');
+    // Permite vazio na digitação para não dar erro enquanto apaga, 
+    // mas será barrado no nextStep se estiver vazio
+    if (!field.value) {
+        _g('warn-ir-date').style.display = 'none';
+        return true; 
+    }
+
     const val = parseInt(field.value);
     const warn = _g('warn-ir-date');
     const now = new Date();
     const currentYear = now.getFullYear();
-    
-    // Data limite: 15 de Março do ano corrente
-    // Mês é base 0 no JS, então 2 representa Março
     const limitDate = new Date(currentYear, 2, 15); 
 
+    let isValid = true;
+    let message = '';
+
     if (val > currentYear) {
-        warn.style.display = 'block';
-        warn.innerText = 'Não é possível informar declaração de ano superior ao atual.';
+        isValid = false;
+        message = 'Não é possível informar declaração de ano superior ao atual.';
     } else if (val === currentYear && now < limitDate) {
+        isValid = false;
+        message = 'A declaração de imposto deste ano informado ainda não começou.';
+    }
+
+    if (!isValid) {
         warn.style.display = 'block';
-        warn.innerText = 'A declaração de imposto deste ano informado ainda não começou.';
+        warn.innerText = message;
     } else {
         warn.style.display = 'none';
     }
+
+    return isValid;
 }
 
 // --- VALIDAÇÃO DA ENTRADA ---
@@ -349,7 +399,6 @@ function nextStep(c) {
     if (c === 2) {
         if (_g('ec').value === "") return alert("Por favor, selecione o Estado Civil.");
         if (_g('ec').value === "Solteiro(a)") {
-            // Validação do campo "Comprar Sozinho?"
             if (_g('cs') && _g('cs').value === "") return alert("Selecione se deseja comprar sozinho.");
             
             buyingAlone = _g('cs').value;
@@ -357,17 +406,14 @@ function nextStep(c) {
             _g('step3').classList.add('active');
             return;
         }
-
-        // Validação das perguntas de documento (sub_q)
         if (_g('sub_q') && _g('sub_q').value === "") return alert("Por favor, responda a pergunta sobre a documentação.");
-
         updateExtraStep();
         _g('step2').classList.remove('active');
         _g('stepExtra').classList.add('active');
+
     } else if (c === 'Extra') {
         if (_g('regime') && _g('regime').value === "") return alert("Por favor, selecione o regime de bens.");
         
-        // Validações dos selects dinâmicos da página Extra
         if (_g('cs_regime')) {
             if (_g('cs_regime').value === "") return alert("Selecione se deseja comprar sozinho.");
             buyingAlone = _g('cs_regime').value;
@@ -377,33 +423,49 @@ function nextStep(c) {
         } else if (_g('regime') && (_g('regime').value.includes("União"))) {
             buyingAlone = "Não";
         }
-
         _g('stepExtra').classList.remove('active');
         _g('step3').classList.add('active');
+
     } else if (c === 3) {
-        // Validação Renda
-        // Agora verificamos se é "R$ 0,00" ou vazio
         const rndVal = _g('rnd').value.replace(/\D/g, '');
         if(rndVal === "" || parseInt(rndVal) === 0) return alert("Informe a Renda Bruta.");
         
         if(_g('tr').value === "") return alert("Selecione o Tipo de Renda.");
         _g(`step${c}`).classList.remove('active');
         _g(`step${c + 1}`).classList.add('active');
+
     } else if (c === 4) {
         // Validação IR
-        if(_g('dir').value === "") return alert("Selecione se declarou Imposto de Renda.");
+        const dir = _g('dir').value;
+        if(dir === "") return alert("Selecione se declarou Imposto de Renda.");
+
+        if(dir === "Sim") {
+            const air = _g('air').value;
+            // 1. Verifica se está vazio
+            if (!air) {
+                alert("Por favor, informe o ano da última declaração.");
+                return;
+            }
+            // 2. Verifica a validade usando a função checkIRDate
+            if (!checkIRDate()) {
+                alert("O ano da declaração informado não é válido. Verifique o aviso na tela.");
+                return;
+            }
+        }
+
         _g(`step${c}`).classList.remove('active');
         _g(`step${c + 1}`).classList.add('active');
+
     } else if (c === 5) {
-        // Validação FGTS
         if(_g('tfg').value === "") return alert("Selecione a opção sobre tempo de FGTS.");
         _g(`step${c}`).classList.remove('active');
         _g(`step${c + 1}`).classList.add('active');
+
     } else if (c === 6) {
-        // Validação Dívidas
         if(_g('div').value === "") return alert("Selecione se possui dívidas.");
         _g(`step${c}`).classList.remove('active');
         _g(`step${c + 1}`).classList.add('active');
+
     } else {
         _g(`step${c}`).classList.remove('active');
         _g(`step${c + 1}`).classList.add('active');
@@ -434,7 +496,6 @@ function handleIRChange() { _g('ir-ano-cont').style.display = (_g('dir').value =
 
 // --- PDF E WHATSAPP ---
 function _zRun() {
-    // Trata valores vazios como 0,00 se o usuário apagou tudo
     const fgtsVal = _g("fgts").value.trim() === "" ? "R$ 0,00" : _g("fgts").value;
     const entVal = _g("ent").value.trim() === "" ? "R$ 0,00" : _g("ent").value;
 
@@ -455,7 +516,7 @@ function _zRun() {
     const pageHeight = doc.internal.pageSize.getHeight();
 
     // -- Cabeçalho --
-    doc.setFillColor(0, 86, 179); // Azul Principal
+    doc.setFillColor(0, 86, 179);
     doc.rect(0, 0, pageWidth, 40, 'F');
     
     doc.setTextColor(255, 255, 255);
@@ -481,10 +542,8 @@ function _zRun() {
         doc.text(label, leftCol, y);
         doc.setFont("helvetica", "normal");
         doc.text(String(value), rightCol, y);
-        
         doc.setDrawColor(230, 230, 230);
         doc.line(leftCol, y + 4, pageWidth - 20, y + 4);
-        
         y += lineSpacing;
     };
 
@@ -534,45 +593,97 @@ function _zRun() {
     doc.setTextColor(100, 100, 100);
     doc.text("Creci-MG 45.117 | WhatsApp (31) 93618-0070", pageWidth / 2, footerY + 12, { align: 'center' });
 
-    // 1. Salvar PDF localmente (para o usuário ter o arquivo)
     const pdfName = `Simulacao_${d.n.replace(/\//g,'-')}.pdf`;
     doc.save(pdfName);
 
-    // 2. Montar texto completo para WhatsApp
     const ph = "5531936180070";
-    
     let texto = `*SIMULAÇÃO DE FINANCIAMENTO*\n\n`;
-    
     texto += `*DADOS PESSOAIS*\n`;
     texto += `Data de Nascimento: ${d.n}\n`;
     texto += `Estado Civil: ${d.c}\n`;
     if(d.reg !== "--") texto += `Regime de Bens: ${d.reg}\n`;
     if(d.sub !== "--") texto += `Averbação / Doc: ${d.sub}\n`;
     texto += `Compra Sozinho(a)?: ${d.sozinho}\n\n`;
-    
     texto += `*DADOS FINANCEIROS*\n`;
     texto += `Renda Bruta: ${d.r}\n`;
     texto += `Tipo de Renda: ${d.t}\n`;
     texto += `Declarou IR?: ${d.ir}\n`;
     if(d.ir === "Sim") texto += `Ano Declaração: ${d.a}\n`;
     texto += `\n`;
-    
     texto += `*RECURSOS E DÍVIDAS*\n`;
     texto += `Saldo FGTS: ${d.f}\n`;
     texto += `Mais de 3 anos FGTS?: ${d.tf}\n`;
     texto += `Entrada: ${d.e}\n`;
     texto += `Possui Dívidas?: ${d.dv}\n\n`;
-    
     texto += `_O PDF da simulação foi baixado no meu dispositivo._`;
 
     const msg = encodeURIComponent(texto);
-    
-    // 3. Abrir WhatsApp após pequeno delay para garantir que o download iniciou
     setTimeout(() => {
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         window.open(isMobile ? `https://wa.me/${ph}?text=${msg}` : `https://web.whatsapp.com/send?phone=${ph}&text=${msg}`, "_blank");
     }, 1000);
 }
+</script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Configuração do Firebase
+    const firebaseConfig = JSON.parse(__firebase_config);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+    async function initPresence() {
+        // 1. Autenticação
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+            await signInAnonymously(auth);
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) return;
+
+            // 2. Heartbeat (atualiza sua presença a cada 10s)
+            // Path: /artifacts/{appId}/public/data/online_users/{userId}
+            const userRef = doc(db, 'artifacts', appId, 'public', 'data', 'online_users', user.uid);
+            const updateHeartbeat = () => {
+                setDoc(userRef, { last_seen: Date.now() }, { merge: true });
+            };
+            
+            updateHeartbeat();
+            setInterval(updateHeartbeat, 10000);
+
+            // 3. Ouvir outros usuários
+            const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'online_users');
+            onSnapshot(usersRef, (snapshot) => {
+                const now = Date.now();
+                // Filtra usuários vistos nos últimos 20 segundos
+                // (Se o heartbeat é a cada 10s, 20s de margem é seguro)
+                const count = snapshot.docs.filter(d => {
+                    const data = d.data();
+                    // Verifica se existe o campo e se é recente
+                    return data.last_seen && (data.last_seen > (now - 20000));
+                }).length;
+                
+                const badge = document.getElementById('online-counter');
+                const countSpan = document.getElementById('online-count');
+                
+                if(badge && countSpan) {
+                    countSpan.innerText = count;
+                    badge.style.display = 'flex'; // Torna visível após carregar
+                }
+            }, (error) => {
+                console.error("Erro ao sincronizar usuários:", error);
+            });
+        });
+    }
+
+    initPresence();
 </script>
 </body>
 </html>
