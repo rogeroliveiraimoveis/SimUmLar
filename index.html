@@ -33,8 +33,20 @@
         .privacy-list { margin: 12px 0 0 0; padding-left: 18px; }
         .privacy-list li { margin-bottom: 8px; }
         .privacy-note { background: #eef7f1; border: 1px solid #cbe9d4; color: #245b35; border-radius: 8px; padding: 12px; font-size: 0.88rem; line-height: 1.4; margin-bottom: 18px; }
+        .qualification-note { background: #fff7e6; border: 1px solid #ffe0a3; border-left: 5px solid var(--warn); color: #5f4600; border-radius: 10px; padding: 14px; font-size: 0.9rem; line-height: 1.45; margin-bottom: 18px; }
+
+        .declaration-final { text-align: center; font-weight: 700; color: #333; margin: 12px 0 4px 0; font-size: 0.95rem; }
 
         select option[disabled] { color: #999; }
+        .btn-next:disabled, .btn-send:disabled, .btn-add-phone:disabled { opacity: .55; cursor: not-allowed; filter: grayscale(25%); }
+        .debt-block-msg { color: var(--e); font-size: 0.85rem; margin-top: 7px; display: none; line-height: 1.35; font-weight: 600; }
+        .phone-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .phone-row input { flex: 1; }
+        .btn-add-phone { width: 50px; min-width: 50px; height: 50px; border: none; border-radius: 8px; background: var(--p); color: #fff; font-size: 1.5rem; line-height: 1; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .phone-limit-msg { color: var(--g); font-size: 0.82rem; margin-top: 4px; display: none; line-height: 1.3; }
+        .entry-confirm-row { display: none; align-items: center; gap: 10px; margin-top: 10px; color: #444; font-size: 0.9rem; font-weight: 600; line-height: 1.3; }
+        .entry-confirm-row input[type="checkbox"] { width: 20px; min-width: 20px; height: 20px; padding: 0; margin: 0; accent-color: var(--p); cursor: pointer; }
+        .entry-confirm-row span { flex: 1; }
 
         /* Estilo do Contador Online (Simulado) */
         .online-badge {
@@ -98,8 +110,20 @@
             <div class="privacy-note">
                 Ao continuar, preencha somente as informações da pessoa que está enviando os próprios dados para análise.
             </div>
-            <button type="button" class="btn-next" onclick="startSimulation()">Entendi e quero enviar meus dados</button>
+            <button type="button" class="btn-next" onclick="showBeforeStart()">Entendi e quero enviar meus dados</button>
             <div class="page-indicator">Aviso inicial</div>
+        </div>
+
+        <!-- Tela de Observação Antes do Preenchimento -->
+        <div class="step" id="stepBeforeStart">
+            <div class="qualification-note">
+                <strong>Antes de começar</strong>
+                <p>Este preenchimento e seu envio são uma forma de selecionar pessoas realmente interessadas em iniciar um processo de compra e descartar desinteressados e curiosos.</p>
+                <p>Esperamos que você seja uma pessoa interessada e iremos lhe ajudar com a nossa consultoria.</p>
+                <p><strong>Preencha todos os campos exibidos.</strong></p>
+            </div>
+            <button type="button" class="btn-next" onclick="startSimulation()">Entendi e vou continuar</button>
+            <div class="page-indicator">Antes de começar</div>
         </div>
 
         <!-- Passo 1: Nascimento -->
@@ -193,8 +217,8 @@
 
         <!-- Passo 6: FGTS -->
         <div class="step" id="step5">
-            <div class="f-g"><label>Saldo de FGTS Pessoal?</label><input type="text" id="fgts" value="R$ 0,00" onkeyup="_fM(this)"></div>
-            <div class="f-g">
+            <div class="f-g"><label>Saldo de FGTS Pessoal?</label><input type="text" id="fgts" value="R$ 0,00" inputmode="numeric" onkeyup="_fM(this); handleFGTSChange()" onblur="handleFGTSChange()"></div>
+            <div class="f-g" id="tfg-cont" style="display:none">
                 <label>Mais de 3 anos de contribuição no FGTS?</label>
                 <select id="tfg">
                     <option value="" disabled selected>Selecione...</option>
@@ -213,34 +237,63 @@
         <div class="step" id="step6">
             <div class="f-g">
                 <label>Valor Disponível (entrada/ato)?</label>
-                <input type="text" id="ent" value="R$ 0,00" onkeyup="_fM(this); checkEntrada()">
-                <div id="err-entrada" class="error-msg">Atenção: O FGTS não é entrada. Informe o valor disponível para pagamento imediato hoje.</div>
+                <input type="text" id="ent" value="R$ 0,00" inputmode="numeric" onkeyup="_fM(this); checkEntrada()" onblur="checkEntrada()">
+                <div id="err-entrada-zero" class="error-msg">Informe um valor - não é o do FGTS.</div>
+                <label id="entrada-fgts-confirm-cont" class="entry-confirm-row">
+                    <input type="checkbox" id="entrada-fgts-confirm" onchange="updateStep6ContinueButton()">
+                    <span>Esse valor não é o valor do FGTS.</span>
+                </label>
             </div>
             <div class="f-g">
                 <label>Possui Dívidas / Acordos / Negociações?</label>
-                <select id="div">
+                <select id="div" onchange="handleDebtChange()">
                     <option value="" disabled selected>Selecione...</option>
                     <option value="Não">Não</option>
                     <option value="Sim">Sim</option>
                 </select>
             </div>
+            <div id="debt-value-cont" class="f-g" style="display:none">
+                <label>Deseja saber o valor das suas dívidas?</label>
+                <select id="sdiv" onchange="handleDebtValueChange()">
+                    <option value="" disabled selected>Selecione...</option>
+                    <option value="Não">Não</option>
+                    <option value="Sim">Sim</option>
+                </select>
+                <div id="err-debt-value" class="debt-block-msg">Você só consegue continuar se a resposta acima for Sim.</div>
+            </div>
             <div class="btn-group">
                 <button type="button" class="btn-prev" onclick="prevStep(6)">Voltar</button>
-                <button type="button" class="btn-next" onclick="nextStep(6)">Continuar</button>
+                <button type="button" id="btn-step6" class="btn-next" onclick="nextStep(6)" disabled>Continuar</button>
             </div>
-            <div class="page-indicator">Página 7 de 8</div>
+            <div class="page-indicator">Entrada e dívidas</div>
         </div>
 
-        <!-- Passo 8: Finalizar -->
+        <!-- Etapa opcional: Telefones dos Participantes -->
+        <div class="step" id="stepPhones">
+            <div id="participants-phone-section" class="f-g">
+                <label>Telefone das pessoas que vão participar da simulação</label>
+                <div class="sub-info">Informe até 10 telefones. Campos vazios serão ignorados no envio.</div>
+                <div id="participant-phone-fields"></div>
+                <div id="phone-limit-msg" class="phone-limit-msg">Limite máximo de 10 telefones atingido.</div>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn-prev" onclick="prevStep('Phones')">Voltar</button>
+                <button type="button" class="btn-next" onclick="nextStep('Phones')">Continuar</button>
+            </div>
+            <div class="page-indicator">Telefones dos participantes</div>
+        </div>
+
+        <!-- Passo Final: Envio -->
         <div class="step" id="step7">
-            <button type="button" class="btn-send" onclick="_zRun()">🚀 Baixar PDF e Abrir WhatsApp</button>
+            <button type="button" class="btn-send" onclick="_zRun()">Baixar PDF e Abrir WhatsApp</button>
+            <div class="declaration-final">Declaro verdadeiras as informações</div>
             <div class="btn-group"><button type="button" class="btn-prev" onclick="prevStep(7)" style="flex:1">Rever Informações</button></div>
             <div class="footer-info">
                 <strong>Consultor: Roger Oliveira</strong><br>
                 Creci-MG 45.117 – WhatsApp (31) 93618-0070<br>
                 <span style="color:var(--w); font-weight: bold;">✔ Canal de Envio Seguro</span>
             </div>
-            <div class="page-indicator">Página 8 de 8</div>
+            <div class="page-indicator">Envio final</div>
         </div>
     </form>
 </div>
@@ -248,9 +301,16 @@
 <script>
 const _g = (id) => document.getElementById(id);
 let buyingAlone = "Não";
+const MAX_PARTICIPANT_PHONES = 10;
+
+function showBeforeStart() {
+    _g('stepIntro').classList.remove('active');
+    _g('stepBeforeStart').classList.add('active');
+    window.scrollTo(0, 0);
+}
 
 function startSimulation() {
-    _g('stepIntro').classList.remove('active');
+    _g('stepBeforeStart').classList.remove('active');
     _g('step1').classList.add('active');
     window.scrollTo(0, 0);
 }
@@ -273,6 +333,26 @@ function _fM(i) {
     var v = i.value.replace(/\D/g, '');
     v = (v / 100).toFixed(2).replace(".", ",").replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
     i.value = "R$ " + v;
+}
+
+// Máscara de telefone celular/fixo
+function _mPhone(i) {
+    let v = i.value.replace(/\D/g, '').slice(0, 11);
+    if (v.length > 10) {
+        v = v.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3');
+    } else if (v.length > 6) {
+        v = v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+    } else if (v.length > 2) {
+        v = v.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
+    } else if (v.length > 0) {
+        v = v.replace(/^(\d{0,2})/, '($1');
+    }
+    i.value = v;
+}
+
+function getMoneyCents(id) {
+    const el = _g(id);
+    return el ? (parseInt((el.value || '').replace(/\D/g, ''), 10) || 0) : 0;
 }
 
 // --- VALIDAÇÕES DE CAMPOS ---
@@ -314,10 +394,161 @@ function checkIRDate() {
 }
 
 function checkEntrada() {
-    const f = _g('fgts').value, e = _g('ent').value;
-    const vf = parseInt(f.replace(/\D/g,"")) || 0, ve = parseInt(e.replace(/\D/g,"")) || 0;
-    // Se o valor da entrada for idêntico ao FGTS, alerta o usuário
-    _g('err-entrada').style.display = (vf > 0 && ve > 0 && vf === ve) ? 'block' : 'none';
+    const fgtsCents = getMoneyCents('fgts');
+    const entradaCents = getMoneyCents('ent');
+    const zeroMsg = _g('err-entrada-zero');
+    const confirmCont = _g('entrada-fgts-confirm-cont');
+    const confirmCheck = _g('entrada-fgts-confirm');
+    const entradaEqualsFGTS = entradaCents > 0 && fgtsCents > 0 && entradaCents === fgtsCents;
+
+    if (zeroMsg) zeroMsg.style.display = entradaCents === 0 ? 'block' : 'none';
+    if (confirmCont) confirmCont.style.display = entradaEqualsFGTS ? 'flex' : 'none';
+    if (!entradaEqualsFGTS && confirmCheck) confirmCheck.checked = false;
+
+    updateStep6ContinueButton();
+}
+
+function isEntradaReady() {
+    const fgtsCents = getMoneyCents('fgts');
+    const entradaCents = getMoneyCents('ent');
+    const confirmCheck = _g('entrada-fgts-confirm');
+    const entradaEqualsFGTS = entradaCents > 0 && fgtsCents > 0 && entradaCents === fgtsCents;
+
+    if (entradaCents === 0) return false;
+    if (entradaEqualsFGTS && (!confirmCheck || !confirmCheck.checked)) return false;
+    return true;
+}
+
+function isDebtReady() {
+    const debt = _g('div') ? _g('div').value : '';
+    const knowDebt = _g('sdiv') ? _g('sdiv').value : '';
+    if (debt === '') return false;
+    if (debt === 'Sim') return knowDebt === 'Sim';
+    return true;
+}
+
+function updateStep6ContinueButton() {
+    const btn = _g('btn-step6');
+    if (!btn) return;
+    btn.disabled = !(isEntradaReady() && isDebtReady());
+}
+
+function handleFGTSChange() {
+    const hasFGTS = getMoneyCents('fgts') > 0;
+    const cont = _g('tfg-cont');
+    const tfg = _g('tfg');
+    if (!cont || !tfg) return;
+
+    cont.style.display = hasFGTS ? 'block' : 'none';
+    if (!hasFGTS) tfg.value = '';
+    checkEntrada();
+}
+
+function handleDebtChange() {
+    const debt = _g('div').value;
+    const cont = _g('debt-value-cont');
+    const knowDebt = _g('sdiv');
+    const err = _g('err-debt-value');
+
+    if (debt === 'Sim') {
+        cont.style.display = 'block';
+        err.style.display = knowDebt.value === 'Não' ? 'block' : 'none';
+    } else {
+        cont.style.display = 'none';
+        knowDebt.value = '';
+        err.style.display = 'none';
+    }
+
+    updateStep6ContinueButton();
+}
+
+function handleDebtValueChange() {
+    const debt = _g('div').value;
+    const knowDebt = _g('sdiv').value;
+    const err = _g('err-debt-value');
+
+    if (debt === 'Sim') {
+        err.style.display = knowDebt === 'Não' ? 'block' : 'none';
+    } else {
+        err.style.display = 'none';
+    }
+
+    updateStep6ContinueButton();
+}
+
+function addParticipantPhoneField() {
+    const fields = _g('participant-phone-fields');
+    if (!fields) return;
+
+    const rows = fields.querySelectorAll('.phone-row');
+    if (rows.length >= MAX_PARTICIPANT_PHONES) {
+        updateParticipantPhoneButtons();
+        return;
+    }
+
+    const row = document.createElement('div');
+    row.className = 'phone-row';
+    row.innerHTML = `
+        <input type="tel" class="participant-phone" placeholder="(31) 99999-9999" maxlength="15" inputmode="tel" autocomplete="tel" oninput="_mPhone(this)">
+        <button type="button" class="btn-add-phone" onclick="addParticipantPhoneField()" aria-label="Adicionar outro telefone">+</button>
+    `;
+    fields.appendChild(row);
+    updateParticipantPhoneButtons();
+}
+
+function updateParticipantPhoneButtons() {
+    const fields = _g('participant-phone-fields');
+    const limitMsg = _g('phone-limit-msg');
+    if (!fields) return;
+
+    const rows = fields.querySelectorAll('.phone-row');
+    const limitReached = rows.length >= MAX_PARTICIPANT_PHONES;
+    fields.querySelectorAll('.btn-add-phone').forEach(btn => btn.disabled = limitReached);
+    if (limitMsg) limitMsg.style.display = limitReached ? 'block' : 'none';
+}
+
+function ensureParticipantPhoneField() {
+    const fields = _g('participant-phone-fields');
+    if (fields && fields.querySelectorAll('.phone-row').length === 0) addParticipantPhoneField();
+}
+
+function updateParticipantPhonesVisibility() {
+    const section = _g('participants-phone-section');
+    if (!section) return;
+
+    if (buyingAlone === 'Não') {
+        section.style.display = 'block';
+        ensureParticipantPhoneField();
+    } else {
+        section.style.display = 'none';
+    }
+}
+
+function getParticipantPhones() {
+    const inputs = document.querySelectorAll('.participant-phone');
+    return Array.from(inputs)
+        .map(input => input.value.trim())
+        .filter(value => value !== '')
+        .slice(0, MAX_PARTICIPANT_PHONES);
+}
+
+function formatPhonesForWhatsApp(phones) {
+    if (!phones.length) return 'Não informado';
+
+    const lines = [];
+    for (let i = 0; i < phones.length; i += 2) {
+        lines.push(phones.slice(i, i + 2).join(' | '));
+    }
+    return lines.join('\n');
+}
+
+function getDocumentQuestion(ec) {
+    if (ec === 'Casado(a)') return 'Possui cópia da Certidão de Casamento?';
+    if (ec === 'Separado(a)') return 'Separação averbada na Certidão?';
+    if (ec === 'Divorciado(a)') return 'Divórcio averbado na Certidão?';
+    if (ec === 'Viúvo(a)') return 'Viuvez averbada na Certidão?';
+    if (ec === 'União Estável') return 'Possui documento dessa união?';
+    return 'Documentação do estado civil?';
 }
 
 function validarData(data) {
@@ -391,8 +622,14 @@ function nextStep(c) {
     } 
     else if (c === 'Extra') {
         if (_g('regime') && _g('regime').value === "") return alert("Selecione o regime de bens.");
-        if (_g('cs_regime')) { buyingAlone = _g('cs_regime').value; } 
-        else if (_g('cs_extra')) { buyingAlone = _g('cs_extra').value; }
+        if (_g('cs_regime')) {
+            if (_g('cs_regime').value === "") return alert("Selecione se deseja comprar sozinho(a).");
+            buyingAlone = _g('cs_regime').value;
+        } 
+        else if (_g('cs_extra')) {
+            if (_g('cs_extra').value === "") return alert("Selecione se deseja comprar sozinho(a).");
+            buyingAlone = _g('cs_extra').value;
+        }
         _g('stepExtra').classList.remove('active'); _g('step3').classList.add('active');
     } 
     else if (c === 3) {
@@ -409,13 +646,32 @@ function nextStep(c) {
         _g(`step${c}`).classList.remove('active'); _g(`step${c + 1}`).classList.add('active');
     } 
     else if (c === 5) {
-        if(_g('tfg').value === "") return alert("Selecione a opção sobre tempo de FGTS.");
+        if(getMoneyCents('fgts') > 0 && _g('tfg').value === "") return alert("Selecione a opção sobre tempo de FGTS.");
         _g(`step${c}`).classList.remove('active'); _g(`step${c + 1}`).classList.add('active');
+        checkEntrada();
     } 
     else if (c === 6) {
+        checkEntrada();
+        if(getMoneyCents('ent') === 0) return alert("Informe um valor - não é o do FGTS.");
+        if(!isEntradaReady()) return alert("Confirme que o valor informado não é o valor do FGTS.");
         if(_g('div').value === "") return alert("Selecione se possui dívidas.");
-        _g(`step${c}`).classList.remove('active'); _g(`step${c + 1}`).classList.add('active');
+        if(_g('div').value === "Sim") {
+            if(_g('sdiv').value === "") return alert("Responda se deseja saber o valor das suas dívidas.");
+            if(_g('sdiv').value === "Não") { handleDebtValueChange(); return; }
+        }
+        if (buyingAlone === 'Não') {
+            updateParticipantPhonesVisibility();
+            _g(`step${c}`).classList.remove('active');
+            _g('stepPhones').classList.add('active');
+        } else {
+            _g(`step${c}`).classList.remove('active');
+            _g('step7').classList.add('active');
+        }
     } 
+    else if (c === 'Phones') {
+        _g('stepPhones').classList.remove('active');
+        _g('step7').classList.add('active');
+    }
     else {
         _g(`step${c}`).classList.remove('active'); _g(`step${c + 1}`).classList.add('active');
     }
@@ -427,6 +683,12 @@ function prevStep(c) {
         if (_g('ec').value === "Solteiro(a)") { _g('step3').classList.remove('active'); _g('step2').classList.add('active'); }
         else { _g('step3').classList.remove('active'); _g('stepExtra').classList.add('active'); }
     } else if (c === 'Extra') { _g('stepExtra').classList.remove('active'); _g('step2').classList.add('active'); }
+    else if (c === 'Phones') { _g('stepPhones').classList.remove('active'); _g('step6').classList.add('active'); }
+    else if (c === 7) {
+        _g('step7').classList.remove('active');
+        if (buyingAlone === 'Não') { _g('stepPhones').classList.add('active'); }
+        else { _g('step6').classList.add('active'); }
+    }
     else { _g(`step${c}`).classList.remove('active'); _g(`step${c - 1}`).classList.add('active'); }
     window.scrollTo(0,0);
 }
@@ -437,6 +699,8 @@ function handleIRChange() { _g('ir-ano-cont').style.display = (_g('dir').value =
 function _zRun() {
     const fgtsVal = _g("fgts").value.trim() === "" ? "R$ 0,00" : _g("fgts").value;
     const entVal = _g("ent").value.trim() === "" ? "R$ 0,00" : _g("ent").value;
+    const fgtsCents = getMoneyCents('fgts');
+    const participantPhones = buyingAlone === 'Não' ? getParticipantPhones() : [];
     
     const d = { 
         n: _g("nasc").value, 
@@ -450,8 +714,10 @@ function _zRun() {
         a: _g("air").value || "--", 
         f: fgtsVal, 
         e: entVal, 
-        tf: _g("tfg").value, 
-        dv: _g("div").value 
+        tf: fgtsCents > 0 ? (_g("tfg").value || "--") : "Não aplicável (saldo de FGTS zerado)", 
+        dv: _g("div").value,
+        sdv: _g("sdiv") ? (_g("sdiv").value || "--") : "--",
+        tels: participantPhones
     };
 
     // 1. Criar PDF Profissional
@@ -461,29 +727,35 @@ function _zRun() {
     const pageHeight = doc.internal.pageSize.getHeight();
 
     // Cabeçalho Azul
-    doc.setFillColor(0, 86, 179); doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.setFillColor(0, 86, 179); doc.rect(0, 0, pageWidth, 45, 'F');
     doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(20);
-    doc.text("DADOS PARA SIMULAÇÃO", pageWidth / 2, 20, { align: 'center' });
+    doc.text("DADOS PARA SIMULAÇÃO", pageWidth / 2, 18, { align: 'center' });
+    doc.setFontSize(11); doc.setFont("helvetica", "bold");
+    doc.text("Declaro esses dados verdadeiros.", pageWidth / 2, 28, { align: 'center' });
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
-    doc.text(`Gerado em: ${new Date().toLocaleString("pt-BR")}`, pageWidth / 2, 30, { align: 'center' });
+    doc.text(`Gerado em: ${new Date().toLocaleString("pt-BR")}`, pageWidth / 2, 37, { align: 'center' });
 
     doc.setTextColor(60, 60, 60); doc.setFontSize(12);
-    let y = 60;
+    let y = 65;
     const printRow = (label, value) => {
         doc.setFont("helvetica", "bold"); doc.text(label, 20, y);
-        doc.setFont("helvetica", "normal"); doc.text(String(value), 105, y);
-        doc.setDrawColor(230, 230, 230); doc.line(20, y + 4, pageWidth - 20, y + 4);
-        y += 12;
+        doc.setFont("helvetica", "normal");
+        const lines = doc.splitTextToSize(String(value), pageWidth - 125);
+        doc.text(lines, 105, y);
+        const rowHeight = Math.max(12, lines.length * 6 + 6);
+        doc.setDrawColor(230, 230, 230); doc.line(20, y + rowHeight - 8, pageWidth - 20, y + rowHeight - 8);
+        y += rowHeight;
     };
 
     // Sessões do PDF
     doc.setFontSize(14); doc.setTextColor(0, 86, 179); doc.text("DADOS DO PROPONENTE", 20, y); y+=10;
     doc.setFontSize(12); doc.setTextColor(60, 60, 60);
-    printRow("Nascimento:", d.n);
+    printRow("Data de Nascimento:", d.n);
     printRow("Estado Civil:", d.c);
     if(d.reg !== "--") printRow("Regime de Bens:", d.reg);
-    if(d.sub !== "--") printRow("Documentação OK?:", d.sub);
-    printRow("Compra Sozinho(a)?:", d.sozinho);
+    if(d.sub !== "--") printRow(getDocumentQuestion(d.c), d.sub);
+    printRow("Comprar Sozinho(a)?:", d.sozinho);
+    if(d.sozinho === "Não") printRow("Telefones dos Participantes:", d.tels.length ? d.tels.join(", ") : "Não informado");
     y += 5;
 
     doc.setFontSize(14); doc.setTextColor(0, 86, 179); doc.text("DADOS FINANCEIROS", 20, y); y+=10;
@@ -496,10 +768,11 @@ function _zRun() {
 
     doc.setFontSize(14); doc.setTextColor(0, 86, 179); doc.text("RECURSOS E CRÉDITO", 20, y); y+=10;
     doc.setFontSize(12); doc.setTextColor(60, 60, 60);
-    printRow("Saldo de FGTS:", d.f);
-    printRow("Mais de 3 anos FGTS:", d.tf);
-    printRow("Entrada (Recurso):", d.e);
-    printRow("Possui Dívidas:", d.dv);
+    printRow("Saldo de FGTS Pessoal:", d.f);
+    printRow("Mais de 3 anos de FGTS?:", d.tf);
+    printRow("Valor Disponível (entrada/ato):", d.e);
+    printRow("Possui Dívidas/Acordos?:", d.dv);
+    if(d.dv === "Sim") printRow("Deseja saber o valor das dívidas?:", d.sdv);
 
     // Rodapé de Identificação
     doc.setDrawColor(0, 86, 179); doc.line(20, pageHeight - 35, pageWidth - 20, pageHeight - 35);
@@ -513,13 +786,53 @@ function _zRun() {
 
     // 2. Redirecionar para WhatsApp com Resumo
     const ph = "5531936180070";
-    let texto = `*DADOS PARA SIMULAÇÃO DE FINANCIAMENTO*\n\n`;
-    texto += `*DADOS PESSOAIS*\nData: ${d.n}\nCivil: ${d.c}\n`;
-    if(d.reg !== "--") texto += `Regime: ${d.reg}\n`;
-    texto += `Sozinho?: ${d.sozinho}\n\n`;
-    texto += `*FINANCEIRO*\nRenda: ${d.r} (${d.t})\nIR: ${d.ir} (${d.a})\n\n`;
-    texto += `*RECURSOS*\nFGTS: ${d.f} (${d.tf})\nEntrada: ${d.e}\nDívidas: ${d.dv}\n\n`;
-    texto += `_O PDF detalhado foi gerado e baixado no dispositivo do próprio usuário._`;
+    let texto = `*DADOS PARA SIMULAÇÃO DE FINANCIAMENTO*
+Declaro verdadeiras as informações
+
+`;
+    texto += `*DADOS PESSOAIS*
+`;
+    texto += `Data de Nascimento: ${d.n}
+`;
+    texto += `Estado Civil: ${d.c}
+`;
+    if(d.reg !== "--") texto += `Qual é o regime de comunhão de bens?: ${d.reg}
+`;
+    if(d.sub !== "--") texto += `${getDocumentQuestion(d.c)}: ${d.sub}
+`;
+    texto += `Comprar sozinho(a)?: ${d.sozinho}
+`;
+    if(d.sozinho === "Não") {
+        texto += `Telefone das pessoas que vão participar da simulação:
+${formatPhonesForWhatsApp(d.tels)}
+`;
+    }
+    texto += `
+*FINANCEIRO*
+`;
+    texto += `Renda Bruta Pessoal: ${d.r}
+`;
+    texto += `Tipo de Renda: ${d.t}
+`;
+    texto += `Declarou Imposto de Renda (IRPF/IRPJ)?: ${d.ir}
+`;
+    if(d.ir === "Sim") texto += `Ano da Última Declaração: ${d.a}
+`;
+    texto += `
+*RECURSOS E CRÉDITO*
+`;
+    texto += `Saldo de FGTS Pessoal?: ${d.f}
+`;
+    texto += `Mais de 3 anos de contribuição no FGTS?: ${d.tf}
+`;
+    texto += `Valor Disponível (entrada/ato)?: ${d.e}
+`;
+    texto += `Possui Dívidas / Acordos / Negociações?: ${d.dv}
+`;
+    if(d.dv === "Sim") texto += `Deseja saber o valor das suas dívidas?: ${d.sdv}
+`;
+    texto += `
+_Um PDF detalhado foi gerado e baixado no meu dispositivo._`;
 
     const msg = encodeURIComponent(texto);
     setTimeout(() => {
@@ -554,6 +867,9 @@ function initSimulatedPresence() {
 // Inicializar scripts ao carregar
 window.onload = function() {
     initSimulatedPresence();
+    handleFGTSChange();
+    handleDebtChange();
+    checkEntrada();
 };
 </script>
 </body>
