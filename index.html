@@ -106,34 +106,36 @@
     <h2 id="main-title">Envio de Dados para Simulação</h2>
 
     <form id="simuForm">
-        <!-- Aviso Inicial de Segurança -->
+        <!-- Tela Inicial: Objetivo do Envio -->
         <div class="step active" id="stepIntro">
-            <div class="privacy-card">
-                <strong>Antes de enviar seus dados</strong>
-                <ul class="privacy-list">
-                    <li>Este aplicativo não salva dados do usuário.</li>
-                    <li>O preenchimento é seguro e serve apenas para gerar o PDF no próprio dispositivo e preparar o envio dos dados para análise.</li>
-                    <li>Cada preenchimento corresponde aos dados e valores de uma única pessoa.</li>
-                    <li>Se mais de uma pessoa quiser participar das simulações e da eventual compra, cada pessoa deve fazer um novo envio separado.</li>
-                </ul>
+            <div class="qualification-note">
+                <strong>Antes de começar sua simulação</strong>
+                <p>Este envio serve para reunir as informações necessárias para uma análise inicial de financiamento imobiliário.</p>
+                <p>Com esses dados, será possível verificar melhor o seu perfil, entender sua capacidade de compra e orientar os próximos passos com mais precisão.</p>
+                <p>O preenchimento também ajuda a organizar o atendimento e priorizar pessoas realmente interessadas em iniciar uma análise de compra.</p>
+                <p><strong>Preencha todos os campos exibidos com atenção.</strong></p>
             </div>
             <div class="privacy-note">
-                Ao continuar, preencha somente as informações da pessoa que está enviando os próprios dados para análise.
+                Ao continuar, você declara estar ciente de que os dados informados serão usados para análise inicial de simulação imobiliária.
             </div>
-            <button type="button" class="btn-next" onclick="showBeforeStart()">Entendi e quero enviar meus dados</button>
-            <div class="page-indicator">Aviso inicial</div>
+            <button type="button" class="btn-next" onclick="showBeforeStart()">Entendi o objetivo e quero continuar</button>
+            <div class="page-indicator">Objetivo da simulação</div>
         </div>
 
-        <!-- Tela de Observação Antes do Preenchimento -->
+        <!-- Tela de Segurança e Orientação Antes do Preenchimento -->
         <div class="step" id="stepBeforeStart">
-            <div class="qualification-note">
-                <strong>Antes de começar</strong>
-                <p>Este preenchimento e seu envio são uma forma de selecionar pessoas realmente interessadas em iniciar um processo de compra e descartar desinteressados e curiosos.</p>
-                <p>Esperamos que você seja uma pessoa interessada e iremos lhe ajudar com a nossa consultoria.</p>
-                <p><strong>Preencha todos os campos exibidos.</strong></p>
+            <div class="privacy-card">
+                <strong>Segurança e orientação de preenchimento</strong>
+                <ul class="privacy-list">
+                    <li>Este aplicativo não salva dados do usuário.</li>
+                    <li>O preenchimento serve apenas para gerar o PDF no próprio dispositivo e preparar o envio dos dados para análise.</li>
+                    <li>Cada preenchimento corresponde aos dados e valores de uma única pessoa.</li>
+                    <li>Se mais de uma pessoa quiser participar da simulação e da eventual compra, cada pessoa deve fazer um novo envio separado.</li>
+                    <li>Preencha somente informações verdadeiras e referentes à pessoa que está enviando os próprios dados.</li>
+                </ul>
             </div>
-            <button type="button" class="btn-next" onclick="startSimulation()">Entendi e vou continuar</button>
-            <div class="page-indicator">Antes de começar</div>
+            <button type="button" class="btn-next" onclick="startSimulation()">ENTENDI, VAMOS COMEÇAR</button>
+            <div class="page-indicator">Segurança e preenchimento</div>
         </div>
 
         <!-- Passo 1: Nascimento -->
@@ -306,7 +308,7 @@
             <div class="page-indicator">Envio final</div>
         </div>
     </form>
-    <div class="version-info">Versão 28/04/2026-01</div>
+    <div class="version-info">Versão 28/04/2026-02</div>
 </div>
 
 <script>
